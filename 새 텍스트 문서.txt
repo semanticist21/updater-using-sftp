@@ -1,0 +1,29 @@
+1. 기능구현
+=> 실행 디렉토리 및 업데이트 디렉토리는 "세팅 파일"에서 받아서 체커수행
+=> 먼저 파일 경로를 기술한 xml 파일이 있는지 체크한 후(실행 디렉토리는 받기만하고, 익셉션시 다시 리스트화), 
+없으면 파일디렉토리 재생성함.
+
+2. 업데이트 하는 사람은 해당 디렉토리 파일이 담긴 XML파일과 함께 서버에 파일을 업로드하면 된다.
+
+## 조건
+<Settings>
+<ip>
+<port>
+<id>
+<pwd>
+<updateFileRootDirectory>value</updateFileRootDirectory>
+<projectFolderNames>
+    <string>value</string>
+    <string>value</string>
+</projectFolderNames>
+<isUpdateOn>value</isUpdateOn>
+
+</Settings>
+0. 세팅에서 접속 정보를 얻어온 후, 연결한다. 연결 실패 시 그냥 앱 실행
+1. 실행 시 해당 파일에 파일 디렉토리 정보가 없으면 epcm-hmi 등을 찾아(세팅에서 설정)시리얼라이징한 xml파일을 만든다.(최상위에는 DateTime으로 정보기록)
+2. 업데이트 서버에서 xml파일 찾는다.
+3. 없으면 false하고 로그인 진입
+4. 있으면 xml하고 비교 후 다른 요소들을 찾아서 full Path가져온다.(풀path저장은 /만하고 updateFileRootDirectory와 결합)
+
+<화면>
+<ProgressBar>로 표시하고 모두 자동화

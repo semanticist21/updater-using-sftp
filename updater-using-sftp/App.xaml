@@ -6,6 +6,202 @@
              ShutdownMode="OnExplicitShutdown"
              >
     <Application.Resources>
-         
+        
+        <!--#region Solid Color Brushes-->
+        
+        <SolidColorBrush x:Key="BackgroundColor" Color="#C5CAE9"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#fafafa"/>
+        <SolidColorBrush x:Key="ButtonBoxBorderColor" Color="#E8EAF6"/>
+        <SolidColorBrush x:Key="ListBoxColor" Color="#E8EAF6"/>
+        <SolidColorBrush x:Key="TextBlockColor" Color="#E8EAF6"/>
+        <SolidColorBrush x:Key="ButtonBackgroundColor" Color="#7986CB"/>
+        
+        <!--#endregion-->
+
+        <!--#region Normal Styles Without Template--> 
+
+        <Style x:Key="BackgroundGridStyle" TargetType="Grid">
+            <Setter Property="Background" Value="{StaticResource BackgroundColor}"/>
+        </Style>
+
+        <Style x:Key="MainStackPanelStyle" TargetType="StackPanel">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ButtonStackPanelStyle" TargetType="StackPanel">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="#ffffff"/>
+        </Style>
+
+        <Style x:Key="ListBoxBorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="0.5"/>
+            <Setter Property="CornerRadius" Value="2"/>
+        </Style>
+
+        <Style x:Key="TextBorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="0.5"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Margin" Value="0 20 0 0"/>
+        </Style>
+
+        <Style x:Key="ListBoxStyle" TargetType="ListBox">
+            <Setter Property="Background" Value="{StaticResource ListBoxColor}"/>
+            <Setter Property="Opacity" Value="0.9"/>
+            <Setter Property="Width" Value="450"/>
+            <Setter Property="Height" Value="220"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style x:Key="ButtonBoxBorderStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonBoxBorderColor}"/>
+            <Setter Property="BorderThickness" Value="0.5"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Background" Value="{StaticResource ButtonBackgroundColor}"/>
+            <Setter Property="Opacity" Value="0.5"/>
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="280"/>
+        </Style>
+
+        <Style x:Key="TextBoxStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="{StaticResource TextBlockColor}"/>
+            <Setter Property="Opacity" Value="0.9"/>
+            <Setter Property="Width" Value="450"/>
+            <Setter Property="Height" Value="40"/>
+        </Style>
+
+        <!--#endregion-->
+
+        <Style x:Key="DefaultButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border TextBlock.Foreground="{TemplateBinding Foreground}"
+                x:Name="Border"
+                CornerRadius="2"
+                BorderThickness="1">
+                            <Border.BorderBrush>
+                                <LinearGradientBrush StartPoint="0,0"
+                                 EndPoint="0,1">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStopCollection>
+                                            <GradientStop Color="{StaticResource BorderLightColor}"
+                                Offset="0.0" />
+                                            <GradientStop Color="{StaticResource BorderDarkColor}"
+                                Offset="1.0" />
+                                        </GradientStopCollection>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+
+                            </Border.BorderBrush>
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5,1"
+                                 StartPoint="0.5,0">
+                                    <GradientStop Color="{StaticResource ControlLightColor}"
+                            Offset="0" />
+                                    <GradientStop Color="{StaticResource ControlMediumColor}"
+                            Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualStateGroup.Transitions>
+                                        <VisualTransition GeneratedDuration="0:0:0.5" />
+                                        <VisualTransition GeneratedDuration="0"
+                                  To="Pressed" />
+                                    </VisualStateGroup.Transitions>
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Panel.Background).
+                      (GradientBrush.GradientStops)[1].(GradientStop.Color)"
+                                                Storyboard.TargetName="Border">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource ControlMouseOverColor}" />
+                                            </ColorAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Panel.Background).
+                      (GradientBrush.GradientStops)[1].(GradientStop.Color)"
+                                                Storyboard.TargetName="Border">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource ControlPressedColor}" />
+                                            </ColorAnimationUsingKeyFrames>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.BorderBrush).
+                      (GradientBrush.GradientStops)[0].(GradientStop.Color)"
+                                                Storyboard.TargetName="Border">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource PressedBorderDarkColor}" />
+                                            </ColorAnimationUsingKeyFrames>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.BorderBrush).
+                      (GradientBrush.GradientStops)[1].(GradientStop.Color)"
+                                                Storyboard.TargetName="Border">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource PressedBorderLightColor}" />
+                                            </ColorAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Panel.Background).
+                      (GradientBrush.GradientStops)[1].(GradientStop.Color)"
+                                                Storyboard.TargetName="Border">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource DisabledControlDarkColor}" />
+                                            </ColorAnimationUsingKeyFrames>
+                                            <ColorAnimationUsingKeyFrames
+                      Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)"
+                                                Storyboard.TargetName="Border">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource DisabledForegroundColor}" />
+                                            </ColorAnimationUsingKeyFrames>
+                                            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.BorderBrush).
+                      (GradientBrush.GradientStops)[1].(GradientStop.Color)"
+                                                Storyboard.TargetName="Border">
+                                                <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource DisabledBorderDarkColor}" />
+                                            </ColorAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentPresenter Margin="2"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefault"
+                   Value="true">
+
+                                <Setter TargetName="Border"
+                    Property="BorderBrush">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0"
+                                     EndPoint="0,1">
+                                            <GradientBrush.GradientStops>
+                                                <GradientStopCollection>
+                                                    <GradientStop Color="{StaticResource DefaultBorderBrushLightBrush}"
+                                    Offset="0.0" />
+                                                    <GradientStop Color="{StaticResource DefaultBorderBrushDarkColor}"
+                                    Offset="1.0" />
+                                                </GradientStopCollection>
+                                            </GradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Application.Resources>
 </Application>

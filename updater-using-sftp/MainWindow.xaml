@@ -5,22 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Updater"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        ResizeMode="NoResize"
+        Title="MainWindow" Height="350" Width="600">
     <Window.Resources>
-        <Style x:Key="ListBoxItemStyle" TargetType="ListBox">
-            <Setter Property="ItemTemplate">
-                <Setter.Value>
-                    <DataTemplate>
-                        <Grid Background="Green">
-                            
-                        </Grid>
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </Window.Resources>
-    <Grid>
-        <ListBox Background="Red" ItemsSource="{Binding Items}">
-        </ListBox>
+    <Grid Style="{StaticResource BackgroundGridStyle}" SnapsToDevicePixels="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.8*"/>
+            <ColumnDefinition Width="0.2*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Style="{StaticResource MainStackPanelStyle}">
+            <Border Style="{StaticResource ListBoxBorderStyle}">
+                <ListBox Style="{StaticResource ListBoxStyle}"/>
+            </Border>
+            <Border Style="{StaticResource TextBorderStyle}">
+                <TextBlock Style="{StaticResource TextBoxStyle}"/>
+            </Border>
+        </StackPanel>
+        <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}">
+            <StackPanel>
+                <Button Height="30" Margin="10" Style="{StaticResource DefaultButtonStyle}"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
