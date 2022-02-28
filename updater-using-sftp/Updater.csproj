@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <RootNamespace>Updater</RootNamespace>
     <Nullable>enable</Nullable>
@@ -9,9 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="MainwindowModel.cs" />
-    <Compile Remove="services\SftpManager - Copy.cs" />
-    <Compile Remove="services\SftpUpdater.cs" />
+    <Compile Remove="Services\SftpManager - Copy.cs" />
+    <Compile Remove="Services\SftpUpdater.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,12 +33,13 @@
 
   <ItemGroup>
     <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Constants\" />
     <Folder Include="Resources\" />
   </ItemGroup>
 

@@ -2,16 +2,19 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Updater.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="UpdateDirectoryPath" Type="System.String" Scope="User">
+    <Setting Name="UpdateDirectoryPath" Type="System.String" Scope="Application">
       <Value Profile="(Default)">/</Value>
     </Setting>
-    <Setting Name="IsUpdateOn" Type="System.Boolean" Scope="User">
+    <Setting Name="IsUpdateOn" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="FilesToExclude" Type="System.Collections.Specialized.StringCollection" Scope="User">
+    <Setting Name="FilesToExclude" Type="System.Collections.Specialized.StringCollection" Scope="Application">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="FolderNamesToExclude" Type="System.Collections.Specialized.StringCollection" Scope="User">
+    <Setting Name="FolderNamesToExclude" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="FileNamesToRun" Type="System.Collections.Specialized.StringCollection" Scope="Application">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

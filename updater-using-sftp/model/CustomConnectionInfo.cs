@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Updater.model
 {
-    public class CustomConnectionInfo
+    public struct CustomConnectionInfo
     {
         public string Address { get; set; }
         public int Port { get; set; }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Updater.model
 {
-    public class FileInfoData
+    public struct FileInfoData
     {
         public string Name { get; set; }
         public string Directory { get; set; }

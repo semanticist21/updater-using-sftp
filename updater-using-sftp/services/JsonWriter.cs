@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,10 +14,13 @@ namespace Updater.services
     {
         public static void WriteFileToJson(T data, string directory, string fileName)
         {
-            string jsonString = JsonConvert.SerializeObject(data.ToString(), Formatting.Indented);
-            string saveFileDirectory = string.Join(directory, fileName);
+            if (data != null)
+            {
+                string jsonString = JsonConvert.SerializeObject(data.ToString(), Formatting.Indented);
+                string saveFileDirectory = string.Join(directory, fileName);
 
-            System.IO.File.WriteAllText(jsonString, saveFileDirectory);
+                System.IO.File.WriteAllText(jsonString, saveFileDirectory);
+            }
         }
         /// <summary>
         /// it writes list<object> to Json File. Put data, directory to save, and file name.
@@ -32,10 +36,10 @@ namespace Updater.services
             System.IO.File.WriteAllText(saveFileDirectory, jsonString);
         }
 
-        public async static Task<List<T>> ReadFromJson(string directory, string fileName)
+        public async static Task<List<T>> ReadFromJsonAsync(string directory, string fileName)
         {
             string parsedFilePath = string.Join("/", directory, fileName);
-            Console.WriteLine(parsedFilePath);
+            //Debug.WriteLine(parsedFilePath);
 
             string fileData = await System.IO.File.ReadAllTextAsync(parsedFilePath);
 

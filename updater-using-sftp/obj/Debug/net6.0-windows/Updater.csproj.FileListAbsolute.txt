@@ -23,7 +23,5 @@ C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\bin\Debug\net6
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\bin\Debug\net6.0-windows\Renci.SshNet.dll
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\bin\Debug\net6.0-windows\SshNet.Security.Cryptography.dll
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6.0-windows\Updater.csproj.CopyComplete
-C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6.0-windows\Window1.g.cs
-C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6.0-windows\Window1.baml
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6.0-windows\App.baml
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\bin\Debug\net6.0-windows\Newtonsoft.Json.dll

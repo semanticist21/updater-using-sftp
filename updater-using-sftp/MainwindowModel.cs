@@ -9,7 +9,8 @@ using Updater.model;
 
 namespace Updater.services
 {
-    public class MainwindowModel : INotifyPropertyChanged
+    //public class MainwindowModel : INotifyPropertyChanged
+    public class MainwindowModel
     {
         private readonly string updateFileDirectoryPath;
         private readonly string currentFileDirectoryPath;
@@ -17,25 +18,25 @@ namespace Updater.services
         private List<FileInfoData> updateFileInfos;
         private List<FileInfoData> projectFileInfos;
 
-        private SftpManager manager;
+        //private SftpManager manager;
         public bool IsConnected;
         public MainwindowModel(CustomConnectionInfo info)
         {
-            manager = new SftpManager(info);
-            currentFileDirectoryPath = info.FileDirectory;
-            if (manager.IsConnected)
-            {
-                this.IsConnected = manager.IsConnected;
-                updateFileDirectoryPath = info.SftpFileDirectory;
-                updateFileInfos = manager.GetSftpFilesInfoFromDirectory(updateFileDirectoryPath);
-                projectFileInfos = manager.GetFilesInfoFromDirectory(currentFileDirectoryPath);
-            }
-            else
-            {
-                Console.WriteLine("Connection has failed");
-            }
+            //manager = new SftpManager(info);
+            //currentFileDirectoryPath = info.FileDirectory;
+            //if (manager.IsConnected)
+            //{
+            //    this.IsConnected = manager.IsConnected;
+            //    updateFileDirectoryPath = info.SftpFileDirectory;
+            //    updateFileInfos = manager.GetSftpFilesInfoFromDirectory(updateFileDirectoryPath);
+            //    projectFileInfos = manager.GetFilesInfoFromDirectory(currentFileDirectoryPath);
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Connection has failed");
+            //}
 
-            manager.DiposeManager();
+            //manager.DiposeManager();
         }
 
         public void MakeConnectionsWithSftpManager()

@@ -1,7 +1,7 @@
 ﻿Updater
 
 
-exe
+winexe
 C#
 .cs
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6.0-windows\
@@ -10,11 +10,11 @@ none
 false
 TRACE;DEBUG;NET;NET6_0;NETCOREAPP
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\App.xaml
-21940794329
+11407045341
 
-10-1655087037
+101941101441
 198-2130991923
-MainWindow.xaml;Window1.xaml;
+MainWindow.xaml;
 
 False
 
