@@ -204,12 +204,14 @@ namespace Updater.services
             StringCollection folderNamesToExlcude = Updater.Properties.Settings.Default.FolderNamesToExclude;
             StringCollection filesToExclude = Updater.Properties.Settings.Default.FilesToExclude;
 
+            List<Stream> files = new List<Stream>();
+
             for (int i = 0; i < filesToUpdate.Count; i++)
             //foreach(FileInfoData file in filesToUpdate)
             {
-                string directoryParsed = this.GetParentDirectory(filesToUpdate[i].Directory);
+                string directoryWithoutFileName = this.GetParentDirectory(filesToUpdate[i].Directory);
 
-                if (directoryParsed.Split("/").Contains(filesToUpdate[i].Name))
+                if (folderNamesToExlcude.Contains(directoryWithoutFileName.Split("/").LastOrDefault()))
                 {
                     filesToUpdate.RemoveAt(i);
                 }
@@ -219,11 +221,23 @@ namespace Updater.services
                     filesToUpdate.RemoveAt(i);
                 }
 
+                string downloadDirectory = string.Concat(fileDirectory, filesToUpdate[i].Directory);
+
+                Stream file = new FileStream();
+
+                var fileDownloadResult = manager.BeginDownloadFile(downloadDirectory, file);
+
+                fileDownloadResult.AsyncWaitHandle.WaitOne();
+
+                //ClearFilesInfo();
             }
 
+
+        }
+        public void ClearFilesInfo()
+        {
             sftpFiles.Clear();
             projectFiles.Clear();
-
         }
         /// <summary>
         /// Returns parent directory. if it contains file name within, returns a directory without a file name.

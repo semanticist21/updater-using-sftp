@@ -26,10 +26,10 @@
         <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}">
             <StackPanel VerticalAlignment="Center">
                 <ComboBox Margin="7 3 7 3" BorderBrush="Gray"/>
+                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Auto"/>
                 <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Connect"/>
-                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Update Run"/>
+                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Update"/>
                 <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Run Project"/>
-                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Set Directory"/>
                 <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Options"/>
                 <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Exit"/>
             </StackPanel>
