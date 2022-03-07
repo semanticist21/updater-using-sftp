@@ -193,7 +193,7 @@ namespace Updater.services
                 return new List<FileInfoData>();
             }
         }
-        public void UpdateFileToDirectory()
+        public async void UpdateFileToDirectory()
         {
             List<FileInfoData> filesToUpdate = FileCompare<FileInfoData>.GetListWithoutDuplicates(sftpFiles, projectFiles);
 
@@ -204,35 +204,35 @@ namespace Updater.services
             StringCollection folderNamesToExlcude = Updater.Properties.Settings.Default.FolderNamesToExclude;
             StringCollection filesToExclude = Updater.Properties.Settings.Default.FilesToExclude;
 
-            List<Stream> files = new List<Stream>();
-
-            for (int i = 0; i < filesToUpdate.Count; i++)
-            //foreach(FileInfoData file in filesToUpdate)
+            await Task.Run(() =>
             {
-                string directoryWithoutFileName = this.GetParentDirectory(filesToUpdate[i].Directory);
+                using (Stream FileStream = File.OpenWrite(fileDirectory){
+                    for (int i = 0; i < filesToUpdate.Count; i++)
+                    //foreach(FileInfoData file in filesToUpdate)
+                    {
+                        string directoryWithoutFileName = this.GetParentDirectory(filesToUpdate[i].Directory);
 
-                if (folderNamesToExlcude.Contains(directoryWithoutFileName.Split("/").LastOrDefault()))
-                {
-                    filesToUpdate.RemoveAt(i);
+                        if (folderNamesToExlcude.Contains(directoryWithoutFileName.Split("/").LastOrDefault()))
+                        {
+                            filesToUpdate.RemoveAt(i);
+                        }
+
+                        if (filesToExclude.Contains(filesToUpdate[i].Name))
+                        {
+                            filesToUpdate.RemoveAt(i);
+                        }
+
+                        string downloadDirectory = string.Concat(fileDirectory, filesToUpdate[i].Directory);
+
+
+                        var fileDownloadResult = manager.BeginDownloadFile(downloadDirectory, fileStream);
+
+                        fileDownloadResult.AsyncWaitHandle.WaitOne();
+
+                        //ClearFilesInfo();
+                    }
                 }
-
-                if (filesToExclude.Contains(filesToUpdate[i].Name))
-                {
-                    filesToUpdate.RemoveAt(i);
-                }
-
-                string downloadDirectory = string.Concat(fileDirectory, filesToUpdate[i].Directory);
-
-                Stream file = new FileStream();
-
-                var fileDownloadResult = manager.BeginDownloadFile(downloadDirectory, file);
-
-                fileDownloadResult.AsyncWaitHandle.WaitOne();
-
-                //ClearFilesInfo();
-            }
-
-
+            });
         }
         public void ClearFilesInfo()
         {
