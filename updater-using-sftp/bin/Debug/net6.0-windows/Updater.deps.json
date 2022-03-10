@@ -10,7 +10,8 @@
         "dependencies": {
           "Newtonsoft.Json": "13.0.1",
           "Renci.SshNet.Async": "1.4.0",
-          "SSH.NET": "2020.0.1"
+          "SSH.NET": "2020.0.1",
+          "System.IO.FileSystem": "4.3.0"
         },
         "runtime": {
           "Updater.dll": {}

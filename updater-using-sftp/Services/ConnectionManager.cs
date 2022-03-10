@@ -49,7 +49,10 @@ namespace Updater.services
         }
 
         private readonly string fileDirectory;
+        public string FileDirectory { get; }
+
         private readonly string sftpFileDirectory;
+        public string SftpFileDirectory { get; }
         #endregion\
 
         public ConnectionManager(CustomConnectionInfo info)
@@ -180,9 +183,9 @@ namespace Updater.services
                         SaveFileInfoToTheList(file);
                     }
 
-                    foreach (DirectoryInfo directories in directoryInfo.GetDirectories())
+                    foreach (DirectoryInfo directoryFolder in directoryInfo.GetDirectories())
                     {
-                        GetFilesInfoFromDirectory(directories.FullName);
+                        if(!directoryFolder.Name.Equals("net6.0-windows"))GetFilesInfoFromDirectory(directoryFolder.FullName);
                     }
                 }
                 return projectFiles;
@@ -192,47 +195,6 @@ namespace Updater.services
                 Debug.WriteLine("the manager is not set or the connection has failed");
                 return new List<FileInfoData>();
             }
-        }
-        public async void UpdateFileToDirectory()
-        {
-            List<FileInfoData> filesToUpdate = FileCompare<FileInfoData>.GetListWithoutDuplicates(sftpFiles, projectFiles);
-
-            //Get Settings Info
-            //string[] FolderNamesToExclude = new string[Updater.Properties.Settings.Default.FolderNamesToExclude.Count];
-            //string[] FilesToExclude = new string[Updater.Properties.Settings.Default.FilesToExclude.Count];
-
-            StringCollection folderNamesToExlcude = Updater.Properties.Settings.Default.FolderNamesToExclude;
-            StringCollection filesToExclude = Updater.Properties.Settings.Default.FilesToExclude;
-
-            await Task.Run(() =>
-            {
-                using (Stream FileStream = File.OpenWrite(fileDirectory){
-                    for (int i = 0; i < filesToUpdate.Count; i++)
-                    //foreach(FileInfoData file in filesToUpdate)
-                    {
-                        string directoryWithoutFileName = this.GetParentDirectory(filesToUpdate[i].Directory);
-
-                        if (folderNamesToExlcude.Contains(directoryWithoutFileName.Split("/").LastOrDefault()))
-                        {
-                            filesToUpdate.RemoveAt(i);
-                        }
-
-                        if (filesToExclude.Contains(filesToUpdate[i].Name))
-                        {
-                            filesToUpdate.RemoveAt(i);
-                        }
-
-                        string downloadDirectory = string.Concat(fileDirectory, filesToUpdate[i].Directory);
-
-
-                        var fileDownloadResult = manager.BeginDownloadFile(downloadDirectory, fileStream);
-
-                        fileDownloadResult.AsyncWaitHandle.WaitOne();
-
-                        //ClearFilesInfo();
-                    }
-                }
-            });
         }
         public void ClearFilesInfo()
         {
@@ -247,11 +209,16 @@ namespace Updater.services
         public string GetParentDirectory(string baseDirectory)
         {
             string[] ParsedString = baseDirectory.Split('/');
-            List<string> LastSkipped = ParsedString.SkipLast(ParsedString.Length).ToList();
+            List<string> LastSkipped = ParsedString.SkipLast(1).Skip(1).ToList();
 
             string parentDirectory = string.Join('/', LastSkipped);
 
             return parentDirectory;
+        }
+
+        public IAsyncResult BeginDownloadFile(string path, Stream output)
+        {
+            return manager.BeginDownloadFile(path, output);
         }
 
         /// <summary>
@@ -281,7 +248,8 @@ namespace Updater.services
         }
         private void SaveFileInfoToTheList(FileInfo file)
         {
-            string directoryParsed = file.FullName.Split(fileDirectory)[1].Replace('\\', '/');
+            //string directoryParsed = file.FullName.Split(fileDirectory)[1].Replace('\\', '/');
+            string directoryParsed = file.FullName.Replace('\\', '/').Replace('\\', '/').Split(fileDirectory)[1];
             projectFiles.Add(new FileInfoData
             {
                 Directory = directoryParsed,
