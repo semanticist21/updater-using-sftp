@@ -216,9 +216,14 @@ namespace Updater.services
             return parentDirectory;
         }
 
-        public IAsyncResult BeginDownloadFile(string path, Stream output)
+        public IAsyncResult BeginDownloadFileAsync(string path, Stream output)
         {
             return manager.BeginDownloadFile(path, output);
+        }
+
+        public void DownloadFile(string path, Stream output)
+        {
+            manager.DownloadFile(path, output);
         }
 
         /// <summary>

@@ -51,6 +51,7 @@ namespace Updater.model
         }
         /// <summary>
         /// It represents server base directory.
+        /// example : /
         /// </summary>
         public string SftpFileDirectory { get; set; }
     }

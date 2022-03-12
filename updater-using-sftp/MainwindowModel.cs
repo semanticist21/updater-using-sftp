@@ -15,13 +15,25 @@ namespace Updater.services
     //public class MainwindowModel : INotifyPropertyChanged
     public class MainwindowModel
     {
-        private string updateFileDirectoryPath;
+        #region [ Variabels ]
+
+        private string serverFileDirectoryPath;
         private string currentFileDirectoryPath;
+
+        private int progressValue;
+        private int progressMaxValue;
+
+        StringCollection folderNamesToExlcude;
+        StringCollection filesToExclude;
 
         private List<FileInfoData> updateFileInfos;
         private List<FileInfoData> projectFileInfos;
 
         private ConnectionManager manager;
+
+
+
+        #endregion
 
         public MainwindowModel()
         {
@@ -37,51 +49,135 @@ namespace Updater.services
             //}
             //);
             // for test
-            initConnection(new CustomConnectionInfo
+
+
+            // for test
+            CustomConnectionInfo test = new CustomConnectionInfo
             {
                 Address = "195.144.107.198",
                 Port = 22,
                 User = "demo",
                 Password = "password",
                 SftpFileDirectory = "/",
-                FileDirectory = string.Join("/", Directory.GetCurrentDirectory().Split('\\').SkipLast(1))
-            });
+                FileDirectory = GetCurrentFileDirectory()
+            };
+            InitConnection(test);
 
             if (manager != null)
             {
-                this.UpdateFileToDirectory();
+                this.UpdateFilesToFileDirectory();
             }
+
         }
 
-        public void initConnection(CustomConnectionInfo info)
+        public void InitConnection(CustomConnectionInfo info)
         {
             manager = new(info);
-            Debug.WriteLine("#@##");
-            Debug.WriteLine(info.FileDirectory);
-            Debug.WriteLine("#@##");
 
             manager.InitManager();
 
             if (manager.IsConnected)
             {
-                currentFileDirectoryPath = info.FileDirectory;
-                updateFileDirectoryPath = info.SftpFileDirectory;
+                InitializeVariables(info);
 
-                updateFileInfos = manager.GetSftpFilesInfoFromDirectory(updateFileDirectoryPath);
-                projectFileInfos = manager.GetFilesInfoFromDirectory(currentFileDirectoryPath);
-
-                Debug.WriteLine("Connection has succeded");
+                Debug.WriteLine("Connection has succeded.");
             }
             else
             {
-                Debug.WriteLine("Connection has failed");
+                Debug.WriteLine("Connection has failed.");
             }
         }
-        private async void UpdateFileToDirectory()
+        private void InitializeVariables(CustomConnectionInfo info)
         {
-            List<FileInfoData> filesToUpdate = FileManager<FileInfoData>.GetListWithoutDuplicates(updateFileInfos, projectFileInfos);
+            progressValue = 0;
+            folderNamesToExlcude = Updater.Properties.Settings.Default.FolderNamesToExclude;
+            filesToExclude = Updater.Properties.Settings.Default.FilesToExclude;
+
+            currentFileDirectoryPath = info.FileDirectory;
+            serverFileDirectoryPath = info.SftpFileDirectory;
+
+            updateFileInfos = manager.GetSftpFilesInfoFromDirectory(serverFileDirectoryPath);
+            projectFileInfos = manager.GetFilesInfoFromDirectory(currentFileDirectoryPath);
+        }
+        private string GetCurrentFileDirectory()
+        {
+            return string.Join("/", Directory.GetCurrentDirectory().Split('\\').SkipLast(1));
+        }
+        private async void UpdateFilesToFileDirectory()
+        {
+            List<FileInfoData> filesToUpdate = RemoveDuplicatesFromProjectFiles(updateFileInfos, projectFileInfos);
+            updateFileInfos.ForEach(file => Debug.WriteLine(file.Directory));
+            projectFileInfos.ForEach(file => Debug.WriteLine(file.Directory));
+            List<FileInfoData> filesToUpdateFiltered = FilterOlderFiles(filesToUpdate);
+
+            Debug.WriteLine("Download sequence has started...");
+            Debug.WriteLine("Files count to update");
+            Debug.WriteLine(filesToUpdate.Count);
+
+            bool hasUpdatedCompleted = false;
+
+            if (filesToUpdate.Count > 0) hasUpdatedCompleted = await ExecuteUpdateAsync(filesToUpdateFiltered);
+            else Debug.WriteLine("There is no file to update!");
+
+            #region [ old code ]
+
+            //var task = Task.Run(() =>
+            // {
+            //     try
+            //     {
+            //         if (filesToUpdate.Count == 0)
+            //         {
+            //             Debug.WriteLine("There is no file to update!");
+            //             return;
+            //         }
+
+            //         for (int i = 0; i < filesToUpdate.Count; i++)
+            //         //foreach(FileInfoData file in filesToUpdate)
+            //         {
+            //             string directoryWithoutFileName = manager.GetParentDirectory(filesToUpdate[i].Directory);
+
+            //             if (folderNamesToExlcude != null && folderNamesToExlcude.Contains(directoryWithoutFileName.Split("/").LastOrDefault()))
+            //             {
+            //                 filesToUpdate.RemoveAt(i);
+            //             }
+
+            //             if (filesToExclude != null && filesToExclude.Contains(filesToUpdate[i].Name))
+            //             {
+            //                 filesToUpdate.RemoveAt(i);
+            //             }
+
+            //             string downloadDirectory = string.Concat(currentFileDirectoryPath, filesToUpdate[i].Directory);
+
+            //             FileManager<FileInfoData>.MakeDirectoryIfNotExists(currentFileDirectoryPath, filesToUpdate[i].Directory);
+
+            //             using Stream fileStream = File.OpenWrite(downloadDirectory);
+            //             var fileDownloadResult = manager.BeginDownloadFileAsync(downloadDirectory, fileStream);
+            //             fileDownloadResult.AsyncWaitHandle.WaitOne();
+            //             //ClearFilesInfo();
+            //         }
+            //     }
+            //     catch (UnauthorizedAccessException ex)
+            //     {
+            //         Task.FromException(ex);
+            //     }
+            // });
+
+            //await task.ConfigureAwait(false);
+
+            //if (task.IsCompletedSuccessfully) Debug.WriteLine("Suceess");
+            //else Debug.WriteLine("failed");
+
+            #endregion
+        }
+
+        private static List<FileInfoData> RemoveDuplicatesFromProjectFiles(List<FileInfoData> updateFileInfos, List<FileInfoData> projectFileInfos)
+        {
+            return FileManager<FileInfoData>.GetListWithoutDuplicates(updateFileInfos, projectFileInfos);
+        }
+        private List<FileInfoData> FilterOlderFiles(List<FileInfoData> filesToUpdate)
+        {
             List<FileInfoData> filesToDelete = new List<FileInfoData>();
-            //get if updated time is newer
+
             for (int i = 0; i < filesToUpdate.Count; i++)
             {
                 for (int j = 0; j < projectFileInfos.Count; j++)
@@ -89,80 +185,99 @@ namespace Updater.services
                     if (filesToUpdate[i].Directory.Equals(projectFileInfos[j].Directory) && filesToUpdate[i].LastWrittenTime <= projectFileInfos[j].LastWrittenTime)
                     {
                         filesToDelete.Add(filesToUpdate[i]);
-                        Debug.WriteLine(i);
                     }
                 }
             }
 
-            filesToUpdate = filesToUpdate.Except(filesToDelete).ToList();
-
-            //Get Settings Info
-            //string[] FolderNamesToExclude = new string[Updater.Properties.Settings.Default.FolderNamesToExclude.Count];
-            //string[] FilesToExclude = new string[Updater.Properties.Settings.Default.FilesToExclude.Count];
-
-            StringCollection folderNamesToExlcude = Updater.Properties.Settings.Default.FolderNamesToExclude;
-            StringCollection filesToExclude = Updater.Properties.Settings.Default.FilesToExclude;
-
-            Debug.WriteLine("Download sequence has started");
-            Debug.WriteLine("Files count to update");
-            Debug.WriteLine(filesToUpdate.Count);
-
-            var task = Task.Run(() =>
-             {
-                 try
-                 {
-                     if (filesToUpdate.Count == 0)
-                     {
-                         Debug.WriteLine("There is no file to update!");
-                         return;
-                     }
-                     for (int i = 0; i < filesToUpdate.Count; i++)
-                     //foreach(FileInfoData file in filesToUpdate)
-                     {
-                         string directoryWithoutFileName = manager.GetParentDirectory(filesToUpdate[i].Directory);
-
-                         if (folderNamesToExlcude != null && folderNamesToExlcude.Contains(directoryWithoutFileName.Split("/").LastOrDefault()))
-                         {
-                             filesToUpdate.RemoveAt(i);
-                         }
-
-                         if (filesToExclude != null && filesToExclude.Contains(filesToUpdate[i].Name))
-                         {
-                             filesToUpdate.RemoveAt(i);
-                         }
-
-                         string downloadDirectory = string.Concat(currentFileDirectoryPath, filesToUpdate[i].Directory);
-
-                         FileManager<FileInfoData>.MakeDirectoryIfNotExists(currentFileDirectoryPath, filesToUpdate[i].Directory);
-
-                         using Stream fileStream = File.OpenWrite(downloadDirectory);
-                         var fileDownloadResult = manager.BeginDownloadFile(downloadDirectory, fileStream);
-                         fileDownloadResult.AsyncWaitHandle.WaitOne();
-
-                         //ClearFilesInfo();
-                     }
-                 }
-                 catch (UnauthorizedAccessException ex)
-                 {
-                     Task.FromException(ex);
-                 }
-             });
-
-            await task.ConfigureAwait(false);
-
-            if (task.IsCompletedSuccessfully) Debug.WriteLine("Suceess");
-            else Debug.WriteLine("failed");
+            return filesToUpdate.Except(filesToDelete).ToList();
         }
+        private Task<bool> ExecuteUpdateAsync(List<FileInfoData> filesToUpdateFiltered)
+        {
+            TaskCompletionSource<bool> taskSource = new();
 
+            List<FileInfoData> finalList = filesToUpdateFiltered.Where(x => !IsInExclusion(x)).ToList();
+
+            if (finalList.Count == 0) taskSource.SetResult(false);
+            else
+            {
+                try
+                {
+                    SetInitialProgressValue(finalList);
+                    progressValue = finalList.Count;
+
+                    finalList.ForEach(x =>
+                    {
+                        FileDownload(x);
+                        Debug.WriteLine(x.Directory);
+                    });
+                    taskSource.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    taskSource.SetResult(false);
+                    taskSource.TrySetException(ex);
+                }
+            }
+
+            return taskSource.Task;
+        }
+        private bool IsInExclusion(FileInfoData x)
+        {
+            bool result = false;
+
+            if (filesToExclude != null && filesToExclude.Contains(x.Name)) result = true;
+
+            string directoryWithoutFileName = manager.GetParentDirectory(x.Directory);
+            string[] folders = directoryWithoutFileName.Split("/");
+
+            if (folderNamesToExlcude != null)
+            {
+                int numOfFolderIncluded = folders.Where(x => folderNamesToExlcude.Contains(x)).Select(x => x).Count();
+                if (numOfFolderIncluded > 0) result = true;
+            }
+
+            return result;
+        }
+        private void FileDownload(FileInfoData file)
+        {
+            MakeEmptyDirectories(file);
+            FileDownloadBegin(file);
+            progressValue++;
+        }
+        private void MakeEmptyDirectories(FileInfoData file)
+        {
+            FileManager<FileInfoData>.MakeDirectoryIfNotExists(currentFileDirectoryPath, file.Directory);
+        }
+        private void FileDownloadBegin(FileInfoData file)
+        {
+            string downloadDirectory = GetDownloadDirectory(file.Directory);
+            string serverDownloadDirectory = GetServerDownloadDirectory(file.Directory);
+
+            using Stream stream = File.OpenWrite(downloadDirectory);
+
+            manager.DownloadFile(serverDownloadDirectory, stream);
+        }
+        private string GetDownloadDirectory(string fileDirectory)
+        {
+            return string.Concat(currentFileDirectoryPath, fileDirectory);
+        }
+        private string GetServerDownloadDirectory(string fileDirectory)
+        {
+            return string.Concat(serverFileDirectoryPath, fileDirectory);
+        }
+        private void SetInitialProgressValue(List<FileInfoData> finalList)
+        {
+            progressMaxValue = finalList.Count;
+            progressValue = 0;
+        }
         public void MakeConnectionsWithSftpManager()
         {
         }
-
         private void GetCurrentVersionFiles()
         {
 
         }
-
         private void GetFilesInfoFromUpdateSource()
         {
 
