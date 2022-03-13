@@ -1,42 +1,183 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
+using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Input;
+using Updater.Constants;
 using Updater.model;
+using Updater.Model;
 
 namespace Updater.services
 {
     //public class MainwindowModel : INotifyPropertyChanged
-    public class MainwindowModel
+    public class MainwindowModel : INotifyPropertyChanged
     {
-        #region [ Variabels ]
-
-        private string serverFileDirectoryPath;
-        private string currentFileDirectoryPath;
+        #region [ Private Variabels ]
 
         private int progressValue;
         private int progressMaxValue;
 
-        StringCollection folderNamesToExlcude;
-        StringCollection filesToExclude;
+        private string[] folderNamesNotToUpdate;
+        private string[] filesNotToUpdate;
+
+        private string selectedFilePath;
+        private string connectionStatus;
+        private string log;
+
+        private bool isProcessOn;
 
         private List<FileInfoData> updateFileInfos;
         private List<FileInfoData> projectFileInfos;
+        private ObservableCollection<RunFileModel> runFileModels;
 
         private ConnectionManager manager;
+        private CustomConnectionInfo info;
+        private readonly JoinableTaskFactory jtFactory;
+        private readonly JoinableTaskContext context;
+
+        #endregion
+        #region [ PropertyChanged Handler ]
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void RaisePropertyChanged(string name)
+        {
+            PropertyChangedEventHandler? handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
 
 
+        #endregion
+
+        #region [ Public Variabels ]
+
+        public int ProgressValue
+        {
+            get { return progressValue; }
+            set { progressValue = value; }
+        }
+        public int ProgressMaxValue
+        {
+            get { return progressMaxValue; }
+            set { progressMaxValue = value; }
+        }
+
+        public string ConnectionStatus
+        {
+            get { return connectionStatus; }
+            set
+            {
+                if (connectionStatus != value)
+                {
+                    connectionStatus = value;
+                    RaisePropertyChanged("ConnectionStatus");
+                }
+            }
+        }
+
+        public string Log
+        {
+            get { return log; }
+            set
+            {
+                if (log != value)
+                {
+                    log = value;
+                    RaisePropertyChanged("Log");
+                }
+            }
+        }
+
+        public bool IsProcessOn
+        {
+            get { return isProcessOn; }
+            set
+            {
+                isProcessOn = value;
+                RaisePropertyChanged("IsProcessOn");
+            }
+        }
+
+        public ObservableCollection<RunFileModel> RunFileModels
+        {
+            get
+            {
+                return runFileModels;
+            }
+            set
+            {
+                runFileModels = value;
+                RaisePropertyChanged("RunFileModels");
+            }
+        }
+
+        #endregion
+
+        #region [ ICommands ]
+
+        public ICommand AutoCommand { get; }
+        public ICommand ConnectCommand { get; }
+        public ICommand UpdateCommand { get; }
+        public ICommand RunCommand { get; }
+        public ICommand OptionsCommand { get; }
+        public ICommand ExitCommand { get; }
+
+        #endregion
+
+        #region [ ICommands Methods ]
+        private bool CanExecute(object param)
+        {
+            if (isProcessOn == true) return false;
+            else return true;
+        }
+
+        private void AutoCommandExecute(object param)
+        {
+            IsProcessOn = true;
+        }
+        private void ConnectCommandExecute(object param)
+        {
+        }
+        private void UpdateCommandExecute(object param)
+        {
+        }
+        private void RunCommandExecute(object param)
+        {
+            XLogger(Constants.ErrorLevel.Info, "Run command has been executed.");
+            ProcessStartInfo info = new();
+
+        }
+        private void OptionsCommandExecute(object param)
+        {
+            XLogger(Constants.ErrorLevel.Info, "Option command has been executed.");
+        }
+        private void ExitCommandExecute(object param)
+        {
+            if (manager != null && manager.IsConnected)
+            {
+                manager.DiposeManager();
+            }
+            Environment.Exit(0);
+        }
 
         #endregion
 
         public MainwindowModel()
         {
+            #region [ old code ]
+
             //SftpUpdater updater = new SftpUpdater
             //(new CustomConnectionInfo
             //{
@@ -48,38 +189,86 @@ namespace Updater.services
             //    FileDirectory = Directory.GetCurrentDirectory()
             //}
             //);
-            // for test
-
 
             // for test
-            CustomConnectionInfo test = new CustomConnectionInfo
-            {
-                Address = "195.144.107.198",
-                Port = 22,
-                User = "demo",
-                Password = "password",
-                SftpFileDirectory = "/",
-                FileDirectory = GetCurrentFileDirectory()
-            };
-            InitConnection(test);
+            //CustomConnectionInfo test = new CustomConnectionInfo
+            //{
+            //    Address = ConfigurationManager.AppSettings["IpAddress"],
+            //    Port = 22,
+            //    User = "demo",
+            //    Password = "password",
+            //    SftpFileBaseDirectory = "/pub",
+            //    FileDirectory = GetCurrentFileDirectory()
+            //};
 
-            if (manager != null)
+            //getCustomInfoFromSetting();
+            //InitConnection(info);
+
+            //if (manager != null)
+            //{
+            //    this.UpdateFilesToFileDirectory();
+            //}
+
+            #endregion
+
+            progressValue = 0;
+            progressMaxValue = 1;
+            ConnectionStatus = "Connect";
+            Log = "Program has been succesfully initated!";
+            RunFileModels = new ObservableCollection<RunFileModel>();
+
+            getCustomInfoFromSetting();
+
+            context = new JoinableTaskContext();
+            jtFactory = new JoinableTaskFactory(context);
+
+            AutoCommand = new DelegateCommand(AutoCommandExecute, CanExecute, jtFactory);
+            ConnectCommand = new DelegateCommand(ConnectCommandExecute, CanExecute, jtFactory);
+            UpdateCommand = new DelegateCommand(UpdateCommandExecute, CanExecute, jtFactory);
+            RunCommand = new DelegateCommand(RunCommandExecute, CanExecute, jtFactory);
+            OptionsCommand = new DelegateCommand(OptionsCommandExecute, CanExecute, jtFactory);
+            ExitCommand = new DelegateCommand(ExitCommandExecute, CanExecute, jtFactory);
+        }
+        private void getCustomInfoFromSetting()
+        {
+
+            if (ConfigurationManager.AppSettings != null)
             {
-                this.UpdateFilesToFileDirectory();
+                info.Address = ConfigurationManager.AppSettings["ipAddress"] ?? string.Empty;
+                bool parse = int.TryParse(ConfigurationManager.AppSettings["port"], out int result);
+                info.Port = parse ? result : 22;
+                info.User = ConfigurationManager.AppSettings["user"] ?? string.Empty;
+                info.Password = ConfigurationManager.AppSettings["password"] ?? string.Empty;
+                info.SftpFileBaseDirectory = ConfigurationManager.AppSettings["sftpBaseDirectory"] ?? String.Empty;
+                info.FileDirectory = GetCurrentFileDirectory();
+
+                folderNamesNotToUpdate = ConfigurationManager.AppSettings["folderNamesNotToUpdate"].Split(";");
+                filesNotToUpdate = ConfigurationManager.AppSettings["filesNotToUpdate"].Split(";");
+
+                List<string> FileLists = ConfigurationManager.AppSettings["executeFileDirectory"].Split(';').ToList();
+                FileLists.ForEach(x => AddRunFileModels(x));
+
+                runFileModels = new ObservableCollection<RunFileModel>(runFileModels.Where(x => !string.IsNullOrWhiteSpace(x.RunFileName)).Cast<RunFileModel>());
             }
-
+            else
+            {
+                Debug.WriteLine("MainWindowModel - failed to initiate variabels");
+            }
+        }
+        private string AddRunFileModels(string x)
+        {
+            runFileModels.Add(new RunFileModel { RunFilesDirectory = x});
+            return x;
         }
 
         public void InitConnection(CustomConnectionInfo info)
         {
             manager = new(info);
-
             manager.InitManager();
 
             if (manager.IsConnected)
             {
-                InitializeVariables(info);
-
+                GetFilesInfo();
                 Debug.WriteLine("Connection has succeded.");
             }
             else
@@ -87,36 +276,31 @@ namespace Updater.services
                 Debug.WriteLine("Connection has failed.");
             }
         }
-        private void InitializeVariables(CustomConnectionInfo info)
+        private void GetFilesInfo()
         {
-            progressValue = 0;
-            folderNamesToExlcude = Updater.Properties.Settings.Default.FolderNamesToExclude;
-            filesToExclude = Updater.Properties.Settings.Default.FilesToExclude;
-
-            currentFileDirectoryPath = info.FileDirectory;
-            serverFileDirectoryPath = info.SftpFileDirectory;
-
-            updateFileInfos = manager.GetSftpFilesInfoFromDirectory(serverFileDirectoryPath);
-            projectFileInfos = manager.GetFilesInfoFromDirectory(currentFileDirectoryPath);
+            if (manager != null)
+            {
+                updateFileInfos = manager.GetSftpFilesInfoFromDirectory(info.SftpFileBaseDirectory);
+                projectFileInfos = manager.GetFilesInfoFromDirectory(info.FileDirectory);
+            }
         }
         private string GetCurrentFileDirectory()
         {
             return string.Join("/", Directory.GetCurrentDirectory().Split('\\').SkipLast(1));
         }
-        private async void UpdateFilesToFileDirectory()
+        private async Task UpdateFilesToFileDirectoryAsync()
         {
             List<FileInfoData> filesToUpdate = RemoveDuplicatesFromProjectFiles(updateFileInfos, projectFileInfos);
-            updateFileInfos.ForEach(file => Debug.WriteLine(file.Directory));
-            projectFileInfos.ForEach(file => Debug.WriteLine(file.Directory));
             List<FileInfoData> filesToUpdateFiltered = FilterOlderFiles(filesToUpdate);
+            List<FileInfoData> finalList = filesToUpdateFiltered.Where(x => !IsInExclusion(x)).ToList();
 
             Debug.WriteLine("Download sequence has started...");
             Debug.WriteLine("Files count to update");
-            Debug.WriteLine(filesToUpdate.Count);
+            Debug.WriteLine(finalList.Count);
 
             bool hasUpdatedCompleted = false;
 
-            if (filesToUpdate.Count > 0) hasUpdatedCompleted = await ExecuteUpdateAsync(filesToUpdateFiltered);
+            if (finalList.Count > 0) hasUpdatedCompleted = await ExecuteUpdateAsync(finalList);
             else Debug.WriteLine("There is no file to update!");
 
             #region [ old code ]
@@ -169,7 +353,6 @@ namespace Updater.services
 
             #endregion
         }
-
         private static List<FileInfoData> RemoveDuplicatesFromProjectFiles(List<FileInfoData> updateFileInfos, List<FileInfoData> projectFileInfos)
         {
             return FileManager<FileInfoData>.GetListWithoutDuplicates(updateFileInfos, projectFileInfos);
@@ -191,11 +374,11 @@ namespace Updater.services
 
             return filesToUpdate.Except(filesToDelete).ToList();
         }
-        private Task<bool> ExecuteUpdateAsync(List<FileInfoData> filesToUpdateFiltered)
+
+
+        private Task<bool> ExecuteUpdateAsync(List<FileInfoData> finalList)
         {
             TaskCompletionSource<bool> taskSource = new();
-
-            List<FileInfoData> finalList = filesToUpdateFiltered.Where(x => !IsInExclusion(x)).ToList();
 
             if (finalList.Count == 0) taskSource.SetResult(false);
             else
@@ -226,14 +409,13 @@ namespace Updater.services
         {
             bool result = false;
 
-            if (filesToExclude != null && filesToExclude.Contains(x.Name)) result = true;
+            if (filesNotToUpdate != null && filesNotToUpdate.Contains(x.Name)) result = true;
 
             string directoryWithoutFileName = manager.GetParentDirectory(x.Directory);
             string[] folders = directoryWithoutFileName.Split("/");
-
-            if (folderNamesToExlcude != null)
+            if (folderNamesNotToUpdate != null)
             {
-                int numOfFolderIncluded = folders.Where(x => folderNamesToExlcude.Contains(x)).Select(x => x).Count();
+                int numOfFolderIncluded = folders.Where(x => folderNamesNotToUpdate.Contains(x)).Select(x => x).Count();
                 if (numOfFolderIncluded > 0) result = true;
             }
 
@@ -247,7 +429,7 @@ namespace Updater.services
         }
         private void MakeEmptyDirectories(FileInfoData file)
         {
-            FileManager<FileInfoData>.MakeDirectoryIfNotExists(currentFileDirectoryPath, file.Directory);
+            FileManager<FileInfoData>.MakeDirectoryIfNotExists(info.FileDirectory, file.Directory);
         }
         private void FileDownloadBegin(FileInfoData file)
         {
@@ -258,30 +440,37 @@ namespace Updater.services
 
             manager.DownloadFile(serverDownloadDirectory, stream);
         }
+
         private string GetDownloadDirectory(string fileDirectory)
         {
-            return string.Concat(currentFileDirectoryPath, fileDirectory);
+            return string.Concat(info.FileDirectory, fileDirectory);
         }
         private string GetServerDownloadDirectory(string fileDirectory)
         {
-            return string.Concat(serverFileDirectoryPath, fileDirectory);
+            return string.Concat(info.SftpFileBaseDirectory, fileDirectory);
         }
         private void SetInitialProgressValue(List<FileInfoData> finalList)
         {
             progressMaxValue = finalList.Count;
             progressValue = 0;
         }
-        public void MakeConnectionsWithSftpManager()
+        private void XLogger(Constants.ErrorLevel level, string message)
         {
+            switch (level)
+            {
+                case Constants.ErrorLevel.Debug:
+                    Log = $"{log}\nDebug - {message}";
+                    break;
+                case Constants.ErrorLevel.Info:
+                    Log = $"{log}\nInfo - {message}";
+                    break;
+                case Constants.ErrorLevel.Warning:
+                    Log = $"{log}\nWarning - {message}";
+                    break;
+                case Constants.ErrorLevel.Error:
+                    Log = $"{log}\nError - {message}";
+                    break;
+            }
         }
-        private void GetCurrentVersionFiles()
-        {
-
-        }
-        private void GetFilesInfoFromUpdateSource()
-        {
-
-        }
-
     }
 }

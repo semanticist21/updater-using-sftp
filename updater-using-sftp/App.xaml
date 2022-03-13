@@ -59,8 +59,8 @@
         <Style x:Key="TextBoxStyle" TargetType="TextBlock">
             <Setter Property="Background" Value="{StaticResource TextBlockColor}"/>
             <Setter Property="Opacity" Value="0.9"/>
-            <Setter Property="Width" Value="450"/>
-            <Setter Property="Height" Value="30"/>
+            <!--<Setter Property="Width" Value="450"/>
+            <Setter Property="Height" Value="30"/>-->
         </Style>
 
         <Style x:Key="ButtonBoxBorderStyle" TargetType="Border">
@@ -94,6 +94,10 @@
         <SolidColorBrush x:Key="DefaultBorderBrushDarkColor" Color="#673AB7"/>
 
         <Style x:Key="DefaultButtonStyle" TargetType="Button">
+            
+        </Style>
+
+        <!--<Style x:Key="DefaultButtonStyle" TargetType="Button">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -149,7 +153,7 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-        </Style>
+        </Style>-->
 
         <!--<Style x:Key="DefaultButtonStyle1" TargetType="Button">
             <Setter Property="Template">

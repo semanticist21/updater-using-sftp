@@ -4,10 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Updater"
+        xmlns:converter="clr-namespace:Updater.Converter"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="MainWindow" Height="350" Width="600">
+        WindowStyle="SingleBorderWindow"
+        Title="Updater for sftp server" Height="350" Width="600">
     <Window.Resources>
+        <converter:BoolenInverseConverter x:Key="BoolenInverseConverter"/>
     </Window.Resources>
     <Grid Style="{StaticResource BackgroundGridStyle}" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
@@ -15,23 +18,25 @@
             <ColumnDefinition Width="0.2*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Style="{StaticResource MainStackPanelStyle}">
-            <ProgressBar MinHeight="30" Margin="0 0 0 10 " Value="50" BorderThickness="0"/>
+            <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" MinHeight="25" Margin="0 0 0 10 " BorderThickness="0" Opacity="0.7"/>
             <Border Style="{StaticResource ListBoxBorderStyle}">
-                <ListBox Style="{StaticResource ListBoxStyle}"/>
+                <ListBox Style="{StaticResource ListBoxStyle}" Height="154"/>
             </Border>
             <Border Style="{StaticResource TextBorderStyle}">
-                <TextBlock Style="{StaticResource TextBoxStyle}"/>
+                <ScrollViewer Height="75" SizeChanged="ScrollViewer_SizeChanged">
+                    <TextBlock Style="{StaticResource TextBoxStyle}" Text="{Binding Log}" TextWrapping="Wrap"/>
+                </ScrollViewer>
             </Border>
         </StackPanel>
         <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}">
             <StackPanel VerticalAlignment="Center">
-                <ComboBox Margin="7 3 7 3" BorderBrush="Gray"/>
-                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Auto"/>
-                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Connect"/>
-                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Update"/>
-                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Run Project"/>
-                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Options"/>
-                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Exit"/>
+                <ComboBox Margin="7 3 7 3" BorderBrush="Gray" ItemsSource="{Binding RunFileModels}" DisplayMemberPath="RunFileName"/>
+                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Auto" Command="{Binding AutoCommand}"/>
+                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="{Binding ConnectionStatus, FallbackValue=Connect}" Command="{Binding ConnectCommand}"/>
+                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Update" Command="{Binding UpdateCommand}"/>
+                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Run Project" Command="{Binding RunCommand}"/>
+                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Options" Command="{Binding OptionsCommand}"/>
+                <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Exit" Command="{Binding ExitCommand}"/>
             </StackPanel>
         </Border>
     </Grid>

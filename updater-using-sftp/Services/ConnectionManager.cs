@@ -21,7 +21,7 @@ namespace Updater.services
     public class ConnectionManager
     {
         #region [ Variables ]
-        private readonly SftpClient manager;
+        private readonly SftpClient sftpClient;
 
         private bool isConnected;
         public bool IsConnected
@@ -64,13 +64,13 @@ namespace Updater.services
 
             #endregion
 
-            manager = new SftpClient(info.Address, info.Port, info.User, info.Password);
+            sftpClient = new SftpClient(info.Address, info.Port, info.User, info.Password);
 
             fileDirectory = info.FileDirectory;
-            sftpFileDirectory = info.SftpFileDirectory;
+            sftpFileDirectory = info.SftpFileBaseDirectory;
 
-            manager.ConnectionInfo.Timeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
-            manager.OperationTimeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
+            sftpClient.ConnectionInfo.Timeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
+            sftpClient.OperationTimeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
         }
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace Updater.services
         {
             try
             {
-                manager.Connect();
-                isConnected = manager.IsConnected;
+                sftpClient.Connect();
+                isConnected = sftpClient.IsConnected;
             }
             catch (SshOperationTimeoutException e)
             {
@@ -95,10 +95,11 @@ namespace Updater.services
         /// </summary>
         public void DiposeManager()
         {
-            if (manager != null)
+            if (sftpClient != null)
             {
-                manager.Disconnect();
-                manager.Dispose();
+                sftpClient.Disconnect();
+                sftpClient.Dispose();
+                IsConnected = sftpClient.IsConnected;
             }
         }
         /// <summary>
@@ -113,7 +114,7 @@ namespace Updater.services
             bool hasFile = false;
             if (isFtpServer)
             {
-                foreach (SftpFile file in manager.ListDirectory(directory))
+                foreach (SftpFile file in sftpClient.ListDirectory(directory))
                 {
                     if (file.IsDirectory) continue;
                     else if (file.Name.Equals(fileName))
@@ -137,9 +138,9 @@ namespace Updater.services
         }
         public List<FileInfoData> GetSftpFilesInfoFromDirectory(string baseDirectory)
         {
-            if (manager != null && isConnected)
+            if (sftpClient != null && isConnected)
             {
-                foreach (SftpFile file in manager.ListDirectory(baseDirectory))
+                foreach (SftpFile file in sftpClient.ListDirectory(baseDirectory))
                 {
                     if (file.Name.Equals(".") || file.Name.Equals(".."))
                     {
@@ -164,7 +165,7 @@ namespace Updater.services
         }
         public List<FileInfoData> GetFilesInfoFromDirectory(string baseDirectory)
         {
-            if (manager != null && isConnected)
+            if (sftpClient != null && isConnected)
             {
                 // get files on the directory 
                 DirectoryInfo directoryInfo = new DirectoryInfo(baseDirectory);
@@ -216,14 +217,9 @@ namespace Updater.services
             return parentDirectory;
         }
 
-        public IAsyncResult BeginDownloadFileAsync(string path, Stream output)
-        {
-            return manager.BeginDownloadFile(path, output);
-        }
-
         public void DownloadFile(string path, Stream output)
         {
-            manager.DownloadFile(path, output);
+            sftpClient.DownloadFile(path, output);
         }
 
         /// <summary>

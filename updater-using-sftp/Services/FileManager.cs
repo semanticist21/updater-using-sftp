@@ -53,7 +53,17 @@ namespace Updater.services
                 }
             }
         }
-
+        /// <summary>
+        /// return file name from directory
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        public static string GetFileNameFromDirectory(string directory)
+        {
+            string[] directoryParsed = directory.Replace("\\", "/").Replace("\\", "/").Split("/");
+            if (directoryParsed.Length >= 2) return directoryParsed.LastOrDefault() ?? string.Empty;
+            else return string.Empty;
+        }
         private static string[] skipFileName(string[] path)
         {
             return path.SkipLast(1).Where(x => !x.Equals("")).ToArray();

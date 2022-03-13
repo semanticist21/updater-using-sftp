@@ -27,5 +27,9 @@ namespace Updater
             this.DataContext = new MainwindowModel();
         }
 
+        private void ScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (sender is ScrollViewer viewer) viewer.ScrollToBottom(); 
+        }
     }
 }
