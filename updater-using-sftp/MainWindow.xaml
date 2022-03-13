@@ -24,13 +24,13 @@
             </Border>
             <Border Style="{StaticResource TextBorderStyle}">
                 <ScrollViewer Height="75" SizeChanged="ScrollViewer_SizeChanged">
-                    <TextBlock Style="{StaticResource TextBoxStyle}" Text="{Binding Log}" TextWrapping="Wrap"/>
+                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Log}"/>
                 </ScrollViewer>
             </Border>
         </StackPanel>
         <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}">
             <StackPanel VerticalAlignment="Center">
-                <ComboBox Margin="7 3 7 3" BorderBrush="Gray" ItemsSource="{Binding RunFileModels}" DisplayMemberPath="RunFileName"/>
+                <ComboBox Margin="7 3 7 3" BorderBrush="Gray" ItemsSource="{Binding RunFileModels}" DisplayMemberPath="RunFileName" SelectedIndex="{Binding SelectedFileModelIndex, Mode=TwoWay}"/>
                 <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Auto" Command="{Binding AutoCommand}"/>
                 <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="{Binding ConnectionStatus, FallbackValue=Connect}" Command="{Binding ConnectCommand}"/>
                 <Button Height="30" Margin="5" Style="{StaticResource DefaultButtonStyle}" Content="Update" Command="{Binding UpdateCommand}"/>

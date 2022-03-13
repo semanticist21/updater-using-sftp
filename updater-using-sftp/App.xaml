@@ -56,11 +56,11 @@
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
-        <Style x:Key="TextBoxStyle" TargetType="TextBlock">
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
             <Setter Property="Background" Value="{StaticResource TextBlockColor}"/>
             <Setter Property="Opacity" Value="0.9"/>
-            <!--<Setter Property="Width" Value="450"/>
-            <Setter Property="Height" Value="30"/>-->
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
         <Style x:Key="ButtonBoxBorderStyle" TargetType="Border">

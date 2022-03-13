@@ -126,3 +126,7 @@ C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6.0-windows\Updater.genruntimeconfig.cache
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6.0-windows\ref\Updater.dll
 C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\obj\Debug\net6.0-windows\GeneratedInternalTypeHelper.g.cs
+C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\bin\Debug\net6.0-windows\GalaSoft.MvvmLight.Extras.dll
+C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\bin\Debug\net6.0-windows\GalaSoft.MvvmLight.Platform.dll
+C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\bin\Debug\net6.0-windows\GalaSoft.MvvmLight.dll
+C:\Users\seman\source\repos\updater-using-sftp\updater-using-sftp\bin\Debug\net6.0-windows\System.Windows.Interactivity.dll

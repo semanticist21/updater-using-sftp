@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.PlatformUI;
+﻿using GalaSoft.MvvmLight.Command;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using System;
@@ -11,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using Updater.Constants;
 using Updater.model;
@@ -29,7 +31,6 @@ namespace Updater.services
         private string[] folderNamesNotToUpdate;
         private string[] filesNotToUpdate;
 
-        private string selectedFilePath;
         private string connectionStatus;
         private string log;
 
@@ -38,13 +39,15 @@ namespace Updater.services
         private List<FileInfoData> updateFileInfos;
         private List<FileInfoData> projectFileInfos;
         private ObservableCollection<RunFileModel> runFileModels;
+        private int selectedFileModelIndex;
 
         private ConnectionManager manager;
         private CustomConnectionInfo info;
         private readonly JoinableTaskFactory jtFactory;
-        private readonly JoinableTaskContext context;
+        private readonly JoinableTaskContext mainThreadContext;
 
         #endregion
+
         #region [ PropertyChanged Handler ]
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -105,8 +108,12 @@ namespace Updater.services
             get { return isProcessOn; }
             set
             {
-                isProcessOn = value;
-                RaisePropertyChanged("IsProcessOn");
+                if (isProcessOn != value)
+                {
+                    isProcessOn = value;
+                    RaisePropertyChanged("IsProcessOn");
+                    CommandManager.InvalidateRequerySuggested();
+                }
             }
         }
 
@@ -120,6 +127,22 @@ namespace Updater.services
             {
                 runFileModels = value;
                 RaisePropertyChanged("RunFileModels");
+            }
+        }
+
+        public int SelectedFileModelIndex
+        {
+            get
+            {
+                return selectedFileModelIndex;
+            }
+            set
+            {
+                if (selectedFileModelIndex != value)
+                {
+                    selectedFileModelIndex = value;
+                    RaisePropertyChanged("SelectedFileModelIndex");
+                }
             }
         }
 
@@ -139,36 +162,72 @@ namespace Updater.services
         #region [ ICommands Methods ]
         private bool CanExecute(object param)
         {
-            if (isProcessOn == true) return false;
-            else return true;
+            if (!isProcessOn) return true;
+            else return false;
+        }
+
+        private bool CanExecuteUpdate(object param)
+        {
+            if (!isProcessOn && manager != null && manager.IsConnected) return true;
+            else return false;
+        }
+
+        private bool CanExecuteConnect(object param)
+        {
+            if (manager != null)
+            {
+                if (!isProcessOn && !manager.IsConnected) return true;
+                else return false;
+            }
+            else if (!isProcessOn) return true;
+            else return false;
         }
 
         private void AutoCommandExecute(object param)
         {
             IsProcessOn = true;
         }
-        private void ConnectCommandExecute(object param)
+        private async void ConnectCommandExecute(object param)
         {
+            await InitConnectionAsync(info);
         }
         private void UpdateCommandExecute(object param)
         {
         }
         private void RunCommandExecute(object param)
         {
-            XLogger(Constants.ErrorLevel.Info, "Run command has been executed.");
-            ProcessStartInfo info = new();
+            DisposeConnection();
+            Logger(ErrorLevel.Info, "Run command has been executed.");
+
+            if (RunFileModels != null && RunFileModels.Count >= 1 && RunFileModels[selectedFileModelIndex] != null)
+            {
+                try
+                {
+                    ProcessStartInfo info = new(RunFileModels[selectedFileModelIndex].RunFilesDirectory);
+                    Process.Start(info);
+
+                    Environment.Exit(0);
+                }
+                catch (ArgumentNullException)
+                {
+                    Logger(ErrorLevel.Error, "Directory is empty. It is canceled.");
+                }
+                catch (Exception ex)
+                {
+                    Logger(ErrorLevel.Error, ex.Message);
+                }
+            }
+            else Logger(ErrorLevel.Warning, "Warning with run file info. It is canceled.");
 
         }
         private void OptionsCommandExecute(object param)
         {
-            XLogger(Constants.ErrorLevel.Info, "Option command has been executed.");
+            Logger(ErrorLevel.Info, "Option command has been executed.");
         }
         private void ExitCommandExecute(object param)
         {
-            if (manager != null && manager.IsConnected)
-            {
-                manager.DiposeManager();
-            }
+            DisposeConnection();
+
             Environment.Exit(0);
         }
 
@@ -219,19 +278,24 @@ namespace Updater.services
 
             getCustomInfoFromSetting();
 
-            context = new JoinableTaskContext();
-            jtFactory = new JoinableTaskFactory(context);
+            mainThreadContext = new JoinableTaskContext();
+            jtFactory = new JoinableTaskFactory(mainThreadContext);
 
             AutoCommand = new DelegateCommand(AutoCommandExecute, CanExecute, jtFactory);
-            ConnectCommand = new DelegateCommand(ConnectCommandExecute, CanExecute, jtFactory);
-            UpdateCommand = new DelegateCommand(UpdateCommandExecute, CanExecute, jtFactory);
+            ConnectCommand = new DelegateCommand(ConnectCommandExecute, CanExecuteConnect, jtFactory);
+            UpdateCommand = new DelegateCommand(UpdateCommandExecute, CanExecuteUpdate, jtFactory);
             RunCommand = new DelegateCommand(RunCommandExecute, CanExecute, jtFactory);
             OptionsCommand = new DelegateCommand(OptionsCommandExecute, CanExecute, jtFactory);
             ExitCommand = new DelegateCommand(ExitCommandExecute, CanExecute, jtFactory);
+
+
+
         }
+
+        #region [ Init Variables Methods ]
+
         private void getCustomInfoFromSetting()
         {
-
             if (ConfigurationManager.AppSettings != null)
             {
                 info.Address = ConfigurationManager.AppSettings["ipAddress"] ?? string.Empty;
@@ -247,34 +311,69 @@ namespace Updater.services
 
                 List<string> FileLists = ConfigurationManager.AppSettings["executeFileDirectory"].Split(';').ToList();
                 FileLists.ForEach(x => AddRunFileModels(x));
-
                 runFileModels = new ObservableCollection<RunFileModel>(runFileModels.Where(x => !string.IsNullOrWhiteSpace(x.RunFileName)).Cast<RunFileModel>());
+                if (runFileModels.Count >= 1) SelectedFileModelIndex = 0;
+
+                Logger(ErrorLevel.Info, "Succesful fetched app configuration info.");
+                Logger(ErrorLevel.Info, $"Target base directory :: {info.FileDirectory}.");
             }
             else
             {
-                Debug.WriteLine("MainWindowModel - failed to initiate variabels");
+                Logger(ErrorLevel.Error, "Failed to fetch app configuration info.");
             }
         }
         private string AddRunFileModels(string x)
         {
-            runFileModels.Add(new RunFileModel { RunFilesDirectory = x});
+            runFileModels.Add(new RunFileModel { RunFilesDirectory = x });
             return x;
         }
+        private string GetCurrentFileDirectory()
+        {
+            return string.Join("/", Directory.GetCurrentDirectory().Split('\\').SkipLast(1));
+        }
 
-        public void InitConnection(CustomConnectionInfo info)
+        #endregion
+
+        #region [ Connection Methods ]
+        public async Task InitConnectionAsync(CustomConnectionInfo info)
+        {
+            IsProcessOn = true;
+            ConnectionStatus = "Connecting...";
+
+            try
+            {
+                await Task.Run(() => StartConnection(info));
+
+                if (manager.IsConnected)
+                {
+                    GetFilesInfo();
+                    ConnectionStatus = "Connected";
+
+                    Logger(ErrorLevel.Info, $"connection has been successful!!");
+                    Logger(ErrorLevel.Info, $"Address :: {info.Address}");
+                    Logger(ErrorLevel.Info, $"Port :: {info.Port}");
+                    Logger(ErrorLevel.Info, $"User :: {info.User}");
+                }
+                else
+                {
+                    ConnectionStatus = "Retry Connect";
+                    Debug.WriteLine("Connection has failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                ConnectionStatus = "Retry Connect";
+                Logger(ErrorLevel.Error, ex.Message);
+            }
+            finally
+            {
+                IsProcessOn = false;
+            }
+        }
+        private void StartConnection(CustomConnectionInfo info)
         {
             manager = new(info);
             manager.InitManager();
-
-            if (manager.IsConnected)
-            {
-                GetFilesInfo();
-                Debug.WriteLine("Connection has succeded.");
-            }
-            else
-            {
-                Debug.WriteLine("Connection has failed.");
-            }
         }
         private void GetFilesInfo()
         {
@@ -284,10 +383,18 @@ namespace Updater.services
                 projectFileInfos = manager.GetFilesInfoFromDirectory(info.FileDirectory);
             }
         }
-        private string GetCurrentFileDirectory()
+        private void DisposeConnection()
         {
-            return string.Join("/", Directory.GetCurrentDirectory().Split('\\').SkipLast(1));
+            if (manager != null && manager.IsConnected)
+            {
+                manager.DiposeManager();
+            }
+
+            Logger(ErrorLevel.Info, "Connection was disposed.");
         }
+
+        #endregion
+
         private async Task UpdateFilesToFileDirectoryAsync()
         {
             List<FileInfoData> filesToUpdate = RemoveDuplicatesFromProjectFiles(updateFileInfos, projectFileInfos);
@@ -374,8 +481,6 @@ namespace Updater.services
 
             return filesToUpdate.Except(filesToDelete).ToList();
         }
-
-
         private Task<bool> ExecuteUpdateAsync(List<FileInfoData> finalList)
         {
             TaskCompletionSource<bool> taskSource = new();
@@ -454,7 +559,7 @@ namespace Updater.services
             progressMaxValue = finalList.Count;
             progressValue = 0;
         }
-        private void XLogger(Constants.ErrorLevel level, string message)
+        private void Logger(Constants.ErrorLevel level, string message)
         {
             switch (level)
             {

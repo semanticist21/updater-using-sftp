@@ -38,6 +38,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.1.46" />
     <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.1.32210.191" />
+    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Renci.SshNet.Async" Version="1.4.0" />
     <PackageReference Include="SSH.NET" Version="2020.0.1" />

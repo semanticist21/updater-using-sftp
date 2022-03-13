@@ -58,6 +58,10 @@
               "target": "Package",
               "version": "[17.1.32210.191, )"
             },
+            "MvvmLightLibs": {
+              "target": "Package",
+              "version": "[5.4.1.1, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.1, )"
