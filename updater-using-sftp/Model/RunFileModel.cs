@@ -27,9 +27,9 @@ namespace Updater.Model
         }
         public string RunFileName { get; set; }
 
-        private void SetFileName(string RunFilesDirectory)
+        private void SetFileName(string runFilesDirectoryInput)
         {
-            RunFileName = FileManager<string>.GetFileNameFromDirectory(runFilesDirectory);
+            RunFileName = FileManager<string>.GetFileNameFromDirectory(runFilesDirectoryInput);
         }
     }
 }

@@ -36,8 +36,9 @@ namespace Updater.services
 
         private bool isProcessOn;
 
-        private List<FileInfoData> updateFileInfos;
-        private List<FileInfoData> projectFileInfos;
+        private List<FileInfoData> serverFileInfos;
+        private List<FileInfoData> localFileInfos;
+        private ObservableCollection<FileInfoData> finalList;
         private ObservableCollection<RunFileModel> runFileModels;
         private int selectedFileModelIndex;
 
@@ -69,12 +70,20 @@ namespace Updater.services
         public int ProgressValue
         {
             get { return progressValue; }
-            set { progressValue = value; }
+            set
+            {
+                progressValue = value;
+                RaisePropertyChanged("ProgressValue");
+            }
         }
         public int ProgressMaxValue
         {
             get { return progressMaxValue; }
-            set { progressMaxValue = value; }
+            set
+            {
+                progressMaxValue = value;
+                RaisePropertyChanged("ProgressMaxValue");
+            }
         }
 
         public string ConnectionStatus
@@ -127,6 +136,19 @@ namespace Updater.services
             {
                 runFileModels = value;
                 RaisePropertyChanged("RunFileModels");
+            }
+        }
+
+        public ObservableCollection<FileInfoData> FinalList
+        {
+            get
+            {
+                return finalList;
+            }
+            set
+            {
+                finalList = value;
+                RaisePropertyChanged("FinalLists");
             }
         }
 
@@ -191,8 +213,13 @@ namespace Updater.services
         {
             await InitConnectionAsync(info);
         }
-        private void UpdateCommandExecute(object param)
+        private async void UpdateCommandExecute(object param)
         {
+            IsProcessOn = true;
+
+            await UpdateFilesToFileDirectoryAsync();
+
+            IsProcessOn = false;
         }
         private void RunCommandExecute(object param)
         {
@@ -224,11 +251,18 @@ namespace Updater.services
         {
             Logger(ErrorLevel.Info, "Option command has been executed.");
         }
-        private void ExitCommandExecute(object param)
+        private async void ExitCommandExecute(object param)
         {
-            DisposeConnection();
+            IsProcessOn = true;
+            Logger(ErrorLevel.Info, "Please wait until disposing manager...");
+            var task = Task.Run(() => DisposeConnection());
+            await task.ConfigureAwait(true);
+
+            if (task.IsCompletedSuccessfully) Logger(ErrorLevel.Info, "Sucessfully disposed. Trying exit the program...");
+            await Task.Delay(500);
 
             Environment.Exit(0);
+            IsProcessOn = false;
         }
 
         #endregion
@@ -275,6 +309,7 @@ namespace Updater.services
             ConnectionStatus = "Connect";
             Log = "Program has been succesfully initated!";
             RunFileModels = new ObservableCollection<RunFileModel>();
+            finalList = new ObservableCollection<FileInfoData>();
 
             getCustomInfoFromSetting();
 
@@ -287,9 +322,6 @@ namespace Updater.services
             RunCommand = new DelegateCommand(RunCommandExecute, CanExecute, jtFactory);
             OptionsCommand = new DelegateCommand(OptionsCommandExecute, CanExecute, jtFactory);
             ExitCommand = new DelegateCommand(ExitCommandExecute, CanExecute, jtFactory);
-
-
-
         }
 
         #region [ Init Variables Methods ]
@@ -346,13 +378,28 @@ namespace Updater.services
 
                 if (manager.IsConnected)
                 {
-                    GetFilesInfo();
-                    ConnectionStatus = "Connected";
 
+                    ConnectionStatus = "Connected";
                     Logger(ErrorLevel.Info, $"connection has been successful!!");
                     Logger(ErrorLevel.Info, $"Address :: {info.Address}");
                     Logger(ErrorLevel.Info, $"Port :: {info.Port}");
                     Logger(ErrorLevel.Info, $"User :: {info.User}");
+
+                    var task = Task.Run(() => { GetFilesInfo(); });
+                    await task.ConfigureAwait(true);
+
+                    if (serverFileInfos != null && localFileInfos != null)
+                    {
+                        Logger(ErrorLevel.Info, $"Succesfully fetched.");
+                        Logger(ErrorLevel.Info, $"Server file count :: {serverFileInfos.Count}");
+                        Logger(ErrorLevel.Info, $"Local file count :: {localFileInfos.Count}");
+
+                        Logger(ErrorLevel.Info, $"Sorting update files..");
+                        await SetFinalListAsync();
+                        Logger(ErrorLevel.Info, $"sorted final file count :: {FinalList.Count}");
+                    }
+
+
                 }
                 else
                 {
@@ -379,8 +426,9 @@ namespace Updater.services
         {
             if (manager != null)
             {
-                updateFileInfos = manager.GetSftpFilesInfoFromDirectory(info.SftpFileBaseDirectory);
-                projectFileInfos = manager.GetFilesInfoFromDirectory(info.FileDirectory);
+                manager.ClearFilesInfo();
+                serverFileInfos = manager.GetSftpFilesInfoFromDirectory(info.SftpFileBaseDirectory).ToList();
+                localFileInfos = manager.GetFilesInfoFromDirectory(info.FileDirectory).ToList();
             }
         }
         private void DisposeConnection()
@@ -392,23 +440,69 @@ namespace Updater.services
 
             Logger(ErrorLevel.Info, "Connection was disposed.");
         }
+        private static IEnumerable<FileInfoData> RemoveDuplicatesFromProjectFiles(List<FileInfoData> serverFileInfos, List<FileInfoData> localFileInfos)
+        {
+            return FileManager<FileInfoData>.GetListWithoutDuplicates(serverFileInfos, localFileInfos);
+        }
+        private IEnumerable<FileInfoData> FilterOlderFiles(List<FileInfoData> filesToUpdate)
+        {
+            List<FileInfoData> filesToDelete = new List<FileInfoData>();
+
+            for (int i = 0; i < filesToUpdate.Count; i++)
+            {
+                for (int j = 0; j < localFileInfos.Count; j++)
+                {
+                    if (filesToUpdate[i].Directory.Equals(localFileInfos[j].Directory) && filesToUpdate[i].LastWrittenTime <= localFileInfos[j].LastWrittenTime)
+                    {
+                        filesToDelete.Add(filesToUpdate[i]);
+                    }
+                }
+            }
+
+            return filesToUpdate.Except(filesToDelete).ToList();
+        }
+        private async Task SetFinalListAsync()
+        {
+            List<FileInfoData> filesToUpdate = RemoveDuplicatesFromProjectFiles(serverFileInfos, localFileInfos).ToList();
+            List<FileInfoData> filesToUpdateFiltered = FilterOlderFiles(filesToUpdate).ToList();
+
+            var final = filesToUpdateFiltered.Where(x => !IsInExclusion(x)).GetEnumerator();
+            await jtFactory.SwitchToMainThreadAsync();
+            while (final.MoveNext())
+            {
+                FinalList.Add(final.Current);
+            }
+        }
+        private bool IsInExclusion(FileInfoData x)
+        {
+            bool result = false;
+
+            if (filesNotToUpdate != null && filesNotToUpdate.Contains(x.Name)) result = true;
+
+            string directoryWithoutFileName = manager.GetParentDirectory(x.Directory);
+            string[] folders = directoryWithoutFileName.Split("/");
+            if (folderNamesNotToUpdate != null)
+            {
+                int numOfFolderIncluded = folders.Where(x => folderNamesNotToUpdate.Contains(x)).Select(x => x).Count();
+                if (numOfFolderIncluded > 0) result = true;
+            }
+
+            return result;
+        }
 
         #endregion
 
         private async Task UpdateFilesToFileDirectoryAsync()
         {
-            List<FileInfoData> filesToUpdate = RemoveDuplicatesFromProjectFiles(updateFileInfos, projectFileInfos);
-            List<FileInfoData> filesToUpdateFiltered = FilterOlderFiles(filesToUpdate);
-            List<FileInfoData> finalList = filesToUpdateFiltered.Where(x => !IsInExclusion(x)).ToList();
-
-            Debug.WriteLine("Download sequence has started...");
-            Debug.WriteLine("Files count to update");
-            Debug.WriteLine(finalList.Count);
+            Logger(ErrorLevel.Info, "Download sequence has started...");
+            Logger(ErrorLevel.Info, $"Files count to update :: {finalList.Count}");
 
             bool hasUpdatedCompleted = false;
 
-            if (finalList.Count > 0) hasUpdatedCompleted = await ExecuteUpdateAsync(finalList);
-            else Debug.WriteLine("There is no file to update!");
+            if (finalList.Count > 0) hasUpdatedCompleted = await ExecuteUpdateAsync(finalList).ConfigureAwait(true);
+            else Logger(ErrorLevel.Warning, "There is no file to update!");
+
+            if (hasUpdatedCompleted) Logger(ErrorLevel.Info, "Download was sucessful!!");
 
             #region [ old code ]
 
@@ -460,77 +554,50 @@ namespace Updater.services
 
             #endregion
         }
-        private static List<FileInfoData> RemoveDuplicatesFromProjectFiles(List<FileInfoData> updateFileInfos, List<FileInfoData> projectFileInfos)
-        {
-            return FileManager<FileInfoData>.GetListWithoutDuplicates(updateFileInfos, projectFileInfos);
-        }
-        private List<FileInfoData> FilterOlderFiles(List<FileInfoData> filesToUpdate)
-        {
-            List<FileInfoData> filesToDelete = new List<FileInfoData>();
-
-            for (int i = 0; i < filesToUpdate.Count; i++)
-            {
-                for (int j = 0; j < projectFileInfos.Count; j++)
-                {
-                    if (filesToUpdate[i].Directory.Equals(projectFileInfos[j].Directory) && filesToUpdate[i].LastWrittenTime <= projectFileInfos[j].LastWrittenTime)
-                    {
-                        filesToDelete.Add(filesToUpdate[i]);
-                    }
-                }
-            }
-
-            return filesToUpdate.Except(filesToDelete).ToList();
-        }
-        private Task<bool> ExecuteUpdateAsync(List<FileInfoData> finalList)
+        private async Task<bool> ExecuteUpdateAsync(IEnumerable<FileInfoData> finalList)
         {
             TaskCompletionSource<bool> taskSource = new();
 
-            if (finalList.Count == 0) taskSource.SetResult(false);
-            else
+            await Task.Run(() =>
             {
-                try
+                if (finalList.Count() == 0) taskSource.SetResult(false);
+                else
                 {
-                    SetInitialProgressValue(finalList);
-                    progressValue = finalList.Count;
-
-                    finalList.ForEach(x =>
+                    try
                     {
-                        FileDownload(x);
-                        Debug.WriteLine(x.Directory);
-                    });
-                    taskSource.TrySetResult(true);
+                        SetInitialProgressValue(finalList);
+
+                        var enumerator = finalList.GetEnumerator();
+                        List<FileInfoData> downloadedFiles = new();
+                        while (enumerator.MoveNext())
+                        {
+                            FileDownload(enumerator.Current);
+                            downloadedFiles.Add(enumerator.Current);
+                        }
+                        jtFactory.Run(async () =>
+                        {
+                            await jtFactory.SwitchToMainThreadAsync();
+                            downloadedFiles.ForEach(x => FinalList.Remove(x));
+                        });
+
+                        taskSource.TrySetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger(ErrorLevel.Error, ex.Message);
+                        taskSource.SetResult(false);
+                        taskSource.TrySetException(ex);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                    taskSource.SetResult(false);
-                    taskSource.TrySetException(ex);
-                }
-            }
+            });
 
-            return taskSource.Task;
-        }
-        private bool IsInExclusion(FileInfoData x)
-        {
-            bool result = false;
-
-            if (filesNotToUpdate != null && filesNotToUpdate.Contains(x.Name)) result = true;
-
-            string directoryWithoutFileName = manager.GetParentDirectory(x.Directory);
-            string[] folders = directoryWithoutFileName.Split("/");
-            if (folderNamesNotToUpdate != null)
-            {
-                int numOfFolderIncluded = folders.Where(x => folderNamesNotToUpdate.Contains(x)).Select(x => x).Count();
-                if (numOfFolderIncluded > 0) result = true;
-            }
-
-            return result;
+            return await taskSource.Task;
         }
         private void FileDownload(FileInfoData file)
         {
             MakeEmptyDirectories(file);
             FileDownloadBegin(file);
-            progressValue++;
+            ProgressValue++;
         }
         private void MakeEmptyDirectories(FileInfoData file)
         {
@@ -544,6 +611,7 @@ namespace Updater.services
             using Stream stream = File.OpenWrite(downloadDirectory);
 
             manager.DownloadFile(serverDownloadDirectory, stream);
+            Logger(ErrorLevel.Info, $"Download Completed :: {downloadDirectory}");
         }
 
         private string GetDownloadDirectory(string fileDirectory)
@@ -554,10 +622,10 @@ namespace Updater.services
         {
             return string.Concat(info.SftpFileBaseDirectory, fileDirectory);
         }
-        private void SetInitialProgressValue(List<FileInfoData> finalList)
+        private void SetInitialProgressValue(IEnumerable<FileInfoData> finalList)
         {
-            progressMaxValue = finalList.Count;
-            progressValue = 0;
+            ProgressMaxValue = finalList.Count();
+            ProgressValue = 0;
         }
         private void Logger(Constants.ErrorLevel level, string message)
         {

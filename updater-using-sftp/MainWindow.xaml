@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:Updater"
         xmlns:converter="clr-namespace:Updater.Converter"
         mc:Ignorable="d"
-        ResizeMode="NoResize"
+        ResizeMode="CanResizeWithGrip"
         WindowStyle="SingleBorderWindow"
+        Topmost="True"
         Title="Updater for sftp server" Height="350" Width="600">
     <Window.Resources>
         <converter:BoolenInverseConverter x:Key="BoolenInverseConverter"/>
@@ -18,12 +19,18 @@
             <ColumnDefinition Width="0.2*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Style="{StaticResource MainStackPanelStyle}">
-            <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" MinHeight="25" Margin="0 0 0 10 " BorderThickness="0" Opacity="0.7"/>
-            <Border Style="{StaticResource ListBoxBorderStyle}">
-                <ListBox Style="{StaticResource ListBoxStyle}" Height="154"/>
+            <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" MinHeight="20" Margin="10 0 2 5 " BorderThickness="0" Opacity="0.7"/>
+            <Border Style="{StaticResource ViewBorderStyle}"  Margin="9 0 0 0">
+                <DataGrid Height="115" AutoGenerateColumns="false" ItemsSource="{Binding FinalList}" IsReadOnly="True" FontSize="9" HorizontalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="0.25*" Header="File Name" Binding="{Binding Name}"/>
+                        <DataGridTextColumn Width="0.5*" Header="Directory" Binding="{Binding Directory}"/>
+                        <DataGridTextColumn Width="0.25*" Header="Last Written Time" Binding="{Binding LastWrittenTime}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
             </Border>
-            <Border Style="{StaticResource TextBorderStyle}">
-                <ScrollViewer Height="75" SizeChanged="ScrollViewer_SizeChanged">
+            <Border Style="{StaticResource TextBorderStyle}" Margin="10 5 0 0" >
+                <ScrollViewer Height="128" SizeChanged="ScrollViewer_SizeChanged" Padding="0">
                     <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Log}"/>
                 </ScrollViewer>
             </Border>

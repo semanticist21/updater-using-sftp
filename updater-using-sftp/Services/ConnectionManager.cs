@@ -36,38 +36,38 @@ namespace Updater.services
             }
         }
 
-        private List<FileInfoData> sftpFiles;
-        public List<FileInfoData> SftpFiles
+        private List<FileInfoData> serverFiles;
+        public List<FileInfoData> ServerFiles
         {
-            get { return sftpFiles; }
+            get { return serverFiles; }
         }
 
-        private List<FileInfoData> projectFiles;
-        public List<FileInfoData> ProjectFiles
+        private List<FileInfoData> localFiles;
+        public List<FileInfoData> LocalFiles
         {
-            get { return projectFiles; }
+            get { return localFiles; }
         }
 
-        private readonly string fileDirectory;
-        public string FileDirectory { get; }
+        private readonly string localFileDirectory;
+        public string LocalFileDirectory { get; }
 
-        private readonly string sftpFileDirectory;
-        public string SftpFileDirectory { get; }
+        private readonly string serverFileDirectory;
+        public string ServerFileDirectory { get; }
         #endregion\
 
         public ConnectionManager(CustomConnectionInfo info)
         {
             #region [ variables init ]
 
-            sftpFiles = new List<FileInfoData>();
-            projectFiles = new List<FileInfoData>();
+            serverFiles = new List<FileInfoData>();
+            localFiles = new List<FileInfoData>();
 
             #endregion
 
             sftpClient = new SftpClient(info.Address, info.Port, info.User, info.Password);
 
-            fileDirectory = info.FileDirectory;
-            sftpFileDirectory = info.SftpFileBaseDirectory;
+            localFileDirectory = info.FileDirectory;
+            serverFileDirectory = info.SftpFileBaseDirectory;
 
             sftpClient.ConnectionInfo.Timeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
             sftpClient.OperationTimeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
@@ -97,9 +97,9 @@ namespace Updater.services
         {
             if (sftpClient != null)
             {
+                IsConnected = sftpClient.IsConnected;
                 sftpClient.Disconnect();
                 sftpClient.Dispose();
-                IsConnected = sftpClient.IsConnected;
             }
         }
         /// <summary>
@@ -107,12 +107,12 @@ namespace Updater.services
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="fileName"></param>
-        /// <param name="isFtpServer"></param>
+        /// <param name="isSFtpServer"></param>
         /// <returns></returns>
-        public bool CheckFileExists(string directory, string fileName, bool isFtpServer)
+        public bool CheckFileExists(string directory, string fileName, bool isSFtpServer)
         {
             bool hasFile = false;
-            if (isFtpServer)
+            if (isSFtpServer)
             {
                 foreach (SftpFile file in sftpClient.ListDirectory(directory))
                 {
@@ -136,7 +136,12 @@ namespace Updater.services
 
             return hasFile;
         }
-        public List<FileInfoData> GetSftpFilesInfoFromDirectory(string baseDirectory)
+        /// <summary>
+        /// returns Ienumerable file info from the server. Please execute ClearFilesInfo method before using it.
+        /// </summary>
+        /// <param name="baseDirectory"></param>
+        /// <returns></returns>
+        public IEnumerable<FileInfoData> GetSftpFilesInfoFromDirectory(string baseDirectory)
         {
             if (sftpClient != null && isConnected)
             {
@@ -155,7 +160,7 @@ namespace Updater.services
                         SaveSftpFileInfoTotheList(file);
                     }
                 }
-                return sftpFiles;
+                return serverFiles;
             }
             else
             {
@@ -163,7 +168,12 @@ namespace Updater.services
                 return new List<FileInfoData>();
             }
         }
-        public List<FileInfoData> GetFilesInfoFromDirectory(string baseDirectory)
+        /// <summary>
+        /// returns Ienumerable file info from the local directory. Please execute ClearFilesInfo method before using it.
+        /// </summary>
+        /// <param name="baseDirectory"></param>
+        /// <returns></returns>
+        public IEnumerable<FileInfoData> GetFilesInfoFromDirectory(string baseDirectory)
         {
             if (sftpClient != null && isConnected)
             {
@@ -186,10 +196,10 @@ namespace Updater.services
 
                     foreach (DirectoryInfo directoryFolder in directoryInfo.GetDirectories())
                     {
-                        if(!directoryFolder.Name.Equals("net6.0-windows"))GetFilesInfoFromDirectory(directoryFolder.FullName);
+                        if (!directoryFolder.Name.Equals("net6.0-windows")) GetFilesInfoFromDirectory(directoryFolder.FullName);
                     }
                 }
-                return projectFiles;
+                return localFiles;
             }
             else
             {
@@ -199,8 +209,8 @@ namespace Updater.services
         }
         public void ClearFilesInfo()
         {
-            sftpFiles.Clear();
-            projectFiles.Clear();
+            serverFiles.Clear();
+            localFiles.Clear();
         }
         /// <summary>
         /// Returns parent directory. if it contains file name within, returns a directory without a file name.
@@ -237,10 +247,10 @@ namespace Updater.services
         private void SaveSftpFileInfoTotheList(SftpFile file)
         {
             string directoryParsed;
-            if (sftpFileDirectory == "/") directoryParsed = file.FullName;
-            else directoryParsed = file.FullName.Split(sftpFileDirectory)[1];
+            if (serverFileDirectory == "/") directoryParsed = file.FullName;
+            else directoryParsed = file.FullName.Split(serverFileDirectory)[1];
 
-            sftpFiles.Add(new FileInfoData
+            serverFiles.Add(new FileInfoData
             {
                 Directory = directoryParsed,
                 Name = file.Name,
@@ -250,8 +260,8 @@ namespace Updater.services
         private void SaveFileInfoToTheList(FileInfo file)
         {
             //string directoryParsed = file.FullName.Split(fileDirectory)[1].Replace('\\', '/');
-            string directoryParsed = file.FullName.Replace('\\', '/').Replace('\\', '/').Split(fileDirectory)[1];
-            projectFiles.Add(new FileInfoData
+            string directoryParsed = file.FullName.Replace('\\', '/').Replace('\\', '/').Split(localFileDirectory)[1];
+            localFiles.Add(new FileInfoData
             {
                 Directory = directoryParsed,
                 Name = file.Name,
