@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -13,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Updater.Constants;
 using Updater.model;
@@ -20,7 +22,6 @@ using Updater.Model;
 
 namespace Updater.services
 {
-    //public class MainwindowModel : INotifyPropertyChanged
     public class MainwindowModel : INotifyPropertyChanged
     {
         #region [ Private Variabels ]
@@ -30,11 +31,14 @@ namespace Updater.services
 
         private string[] folderNamesNotToUpdate;
         private string[] filesNotToUpdate;
+        private string[] targetFolderNames;
 
         private string connectionStatus;
         private string log;
 
+        private bool isAutoUpdateEnabled;
         private bool isProcessOn;
+        private bool isUpdatedCompleted;
 
         private List<FileInfoData> serverFileInfos;
         private List<FileInfoData> localFileInfos;
@@ -61,7 +65,6 @@ namespace Updater.services
                 handler(this, new PropertyChangedEventArgs(name));
             }
         }
-
 
         #endregion
 
@@ -148,7 +151,7 @@ namespace Updater.services
             set
             {
                 finalList = value;
-                RaisePropertyChanged("FinalLists");
+                RaisePropertyChanged("FinalList");
             }
         }
 
@@ -178,36 +181,50 @@ namespace Updater.services
         public ICommand RunCommand { get; }
         public ICommand OptionsCommand { get; }
         public ICommand ExitCommand { get; }
-
         #endregion
 
         #region [ ICommands Methods ]
-        private bool CanExecute(object param)
-        {
-            if (!isProcessOn) return true;
-            else return false;
-        }
 
-        private bool CanExecuteUpdate(object param)
-        {
-            if (!isProcessOn && manager != null && manager.IsConnected) return true;
-            else return false;
-        }
-
-        private bool CanExecuteConnect(object param)
-        {
-            if (manager != null)
-            {
-                if (!isProcessOn && !manager.IsConnected) return true;
-                else return false;
-            }
-            else if (!isProcessOn) return true;
-            else return false;
-        }
-
-        private void AutoCommandExecute(object param)
+        private async void AutoCommandExecute(object param)
         {
             IsProcessOn = true;
+
+            if (manager == null || !manager.IsConnected)
+            {
+                await InitConnectionAsync(info);
+            }
+
+            if (manager.IsConnected && !isUpdatedCompleted)
+            {
+                await UpdateFilesToFileDirectoryAsync();
+
+                if (isUpdatedCompleted)
+                {
+                    Logger(ErrorLevel.Info, "All update target files will be updated.");
+                    RunCommandExecute(null);
+                }
+                else
+                {
+                    Logger(ErrorLevel.Error, "Something went wrong during the update");
+                }
+            }
+            else if (manager.IsConnected && isUpdatedCompleted)
+            {
+                if (isUpdatedCompleted)
+                {
+                    RunCommandExecute(null);
+                }
+                else
+                {
+                    Logger(ErrorLevel.Error, "Something went wrong during the update");
+                }
+            }
+            else
+            {
+                Logger(ErrorLevel.Error, "Failed to connect the server");
+            }
+
+            IsProcessOn = false;
         }
         private async void ConnectCommandExecute(object param)
         {
@@ -221,10 +238,10 @@ namespace Updater.services
 
             IsProcessOn = false;
         }
-        private void RunCommandExecute(object param)
+        private async void RunCommandExecute(object? param)
         {
             DisposeConnection();
-            Logger(ErrorLevel.Info, "Run command has been executed.");
+            Logger(ErrorLevel.Info, "Run command is executing.");
 
             if (RunFileModels != null && RunFileModels.Count >= 1 && RunFileModels[selectedFileModelIndex] != null)
             {
@@ -232,6 +249,8 @@ namespace Updater.services
                 {
                     ProcessStartInfo info = new(RunFileModels[selectedFileModelIndex].RunFilesDirectory);
                     Process.Start(info);
+
+                    await Task.Delay(1000);
 
                     Environment.Exit(0);
                 }
@@ -259,10 +278,31 @@ namespace Updater.services
             await task.ConfigureAwait(true);
 
             if (task.IsCompletedSuccessfully) Logger(ErrorLevel.Info, "Sucessfully disposed. Trying exit the program...");
-            await Task.Delay(500);
+            await Task.Delay(200);
 
             Environment.Exit(0);
             IsProcessOn = false;
+        }
+        private bool CanExecute(object param)
+        {
+            if (!isProcessOn) return true;
+            else return false;
+        }
+        private bool CanExecuteUpdate(object param)
+        {
+            if (!isProcessOn && manager != null && manager.IsConnected) return true;
+            else return false;
+        }
+
+        private bool CanExecuteConnect(object param)
+        {
+            if (manager != null)
+            {
+                if (!isProcessOn && !manager.IsConnected) return true;
+                else return false;
+            }
+            else if (!isProcessOn) return true;
+            else return false;
         }
 
         #endregion
@@ -330,24 +370,32 @@ namespace Updater.services
         {
             if (ConfigurationManager.AppSettings != null)
             {
+                bool parseBool = bool.TryParse(ConfigurationManager.AppSettings["isAutoUpdateEnabled"], out bool boolResult);
+                isAutoUpdateEnabled = parseBool ? boolResult : false;
+
                 info.Address = ConfigurationManager.AppSettings["ipAddress"] ?? string.Empty;
-                bool parse = int.TryParse(ConfigurationManager.AppSettings["port"], out int result);
-                info.Port = parse ? result : 22;
+                bool IsParsed = int.TryParse(ConfigurationManager.AppSettings["port"], out int resultIntOne);
+                info.Port = IsParsed ? resultIntOne : 22;
                 info.User = ConfigurationManager.AppSettings["user"] ?? string.Empty;
                 info.Password = ConfigurationManager.AppSettings["password"] ?? string.Empty;
-                info.SftpFileBaseDirectory = ConfigurationManager.AppSettings["sftpBaseDirectory"] ?? String.Empty;
+                info.SftpFileBaseDirectory = ConfigurationManager.AppSettings["sftpBaseDirectory"];
+                if (info.SftpFileBaseDirectory == string.Empty) info.SftpFileBaseDirectory = "/";
                 info.FileDirectory = GetCurrentFileDirectory();
 
                 folderNamesNotToUpdate = ConfigurationManager.AppSettings["folderNamesNotToUpdate"].Split(";");
                 filesNotToUpdate = ConfigurationManager.AppSettings["filesNotToUpdate"].Split(";");
+                targetFolderNames = ConfigurationManager.AppSettings["TargetFolderNames"].Split(";");
 
                 List<string> FileLists = ConfigurationManager.AppSettings["executeFileDirectory"].Split(';').ToList();
+                IsParsed = int.TryParse(ConfigurationManager.AppSettings["selectedFileModelIndex"], out int resultIntTwo);
+                SetCheckBoxInitialIndex(resultIntTwo, FileLists.Count(), IsParsed);
+
                 FileLists.ForEach(x => AddRunFileModels(x));
                 runFileModels = new ObservableCollection<RunFileModel>(runFileModels.Where(x => !string.IsNullOrWhiteSpace(x.RunFileName)).Cast<RunFileModel>());
                 if (runFileModels.Count >= 1) SelectedFileModelIndex = 0;
 
                 Logger(ErrorLevel.Info, "Succesful fetched app configuration info.");
-                Logger(ErrorLevel.Info, $"Target base directory :: {info.FileDirectory}.");
+                Logger(ErrorLevel.Info, $"Target base directory :: {info.FileDirectory}");
             }
             else
             {
@@ -363,6 +411,24 @@ namespace Updater.services
         {
             return string.Join("/", Directory.GetCurrentDirectory().Split('\\').SkipLast(1));
         }
+        private void SetCheckBoxInitialIndex(int resultIntTwo, int fileListsCount, bool IsParsed)
+        {
+            if (IsParsed)
+            {
+                if (resultIntTwo <= fileListsCount)
+                {
+                    SelectedFileModelIndex = resultIntTwo;
+                }
+                else
+                {
+                    SelectedFileModelIndex = 0;
+                }
+            }
+            else
+            {
+                SelectedFileModelIndex = 0;
+            }
+        }
 
         #endregion
 
@@ -375,12 +441,11 @@ namespace Updater.services
             try
             {
                 await Task.Run(() => StartConnection(info));
-
                 if (manager.IsConnected)
                 {
 
                     ConnectionStatus = "Connected";
-                    Logger(ErrorLevel.Info, $"connection has been successful!!");
+                    Logger(ErrorLevel.Info, $"Connection has been successful!!");
                     Logger(ErrorLevel.Info, $"Address :: {info.Address}");
                     Logger(ErrorLevel.Info, $"Port :: {info.Port}");
                     Logger(ErrorLevel.Info, $"User :: {info.User}");
@@ -396,10 +461,8 @@ namespace Updater.services
 
                         Logger(ErrorLevel.Info, $"Sorting update files..");
                         await SetFinalListAsync();
-                        Logger(ErrorLevel.Info, $"sorted final file count :: {FinalList.Count}");
+                        Logger(ErrorLevel.Info, $"Sorted final file count :: {FinalList.Count}");
                     }
-
-
                 }
                 else
                 {
@@ -419,16 +482,18 @@ namespace Updater.services
         }
         private void StartConnection(CustomConnectionInfo info)
         {
-            manager = new(info);
-            manager.InitManager();
+            manager = ConnectionManager.Instance();
+            manager.Init(info);
+            bool isInstanced = manager.InitConnection();
+            if (isInstanced) Logger(ErrorLevel.Info, "SFTP client instance was created.");
         }
         private void GetFilesInfo()
         {
             if (manager != null)
             {
                 manager.ClearFilesInfo();
-                serverFileInfos = manager.GetSftpFilesInfoFromDirectory(info.SftpFileBaseDirectory).ToList();
-                localFileInfos = manager.GetFilesInfoFromDirectory(info.FileDirectory).ToList();
+                serverFileInfos = manager.GetSftpFilesInfoFromTargetDirectory(info.SftpFileBaseDirectory, targetFolderNames, true).ToList();
+                localFileInfos = manager.GetFilesInfoFromTargetDirectory(info.FileDirectory, targetFolderNames, true).ToList();
             }
         }
         private void DisposeConnection()
@@ -440,38 +505,50 @@ namespace Updater.services
 
             Logger(ErrorLevel.Info, "Connection was disposed.");
         }
+        private async Task SetFinalListAsync()
+        {
+            List<FileInfoData> filesToUpdate = RemoveDuplicatesFromProjectFiles(serverFileInfos, localFileInfos).ToList();
+            List<FileInfoData> filesToUpdateFiltered = FilterOlderFiles(filesToUpdate).ToList();
+
+            var final = filesToUpdateFiltered.Where(x => !IsInExclusion(x)).Select(x => x).GetEnumerator();
+            await jtFactory.SwitchToMainThreadAsync();
+            while (final.MoveNext())
+            {
+                var item = final.Current;
+                item.IsUpdateTarget = true;
+                FinalList.Add(item);
+            }
+        }
+
         private static IEnumerable<FileInfoData> RemoveDuplicatesFromProjectFiles(List<FileInfoData> serverFileInfos, List<FileInfoData> localFileInfos)
         {
             return FileManager<FileInfoData>.GetListWithoutDuplicates(serverFileInfos, localFileInfos);
         }
         private IEnumerable<FileInfoData> FilterOlderFiles(List<FileInfoData> filesToUpdate)
         {
-            List<FileInfoData> filesToDelete = new List<FileInfoData>();
-
+            List<FileInfoData> filesToUpdateFiltered = new();
             for (int i = 0; i < filesToUpdate.Count; i++)
             {
                 for (int j = 0; j < localFileInfos.Count; j++)
                 {
-                    if (filesToUpdate[i].Directory.Equals(localFileInfos[j].Directory) && filesToUpdate[i].LastWrittenTime <= localFileInfos[j].LastWrittenTime)
+                    if (filesToUpdate[i].Directory.Equals(localFileInfos[j].Directory))
                     {
-                        filesToDelete.Add(filesToUpdate[i]);
+                        if (filesToUpdate[i].LastWrittenTime <= localFileInfos[j].LastWrittenTime)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            filesToUpdateFiltered.Add(filesToUpdate[i]);
+                        }
+                    }
+                    else
+                    {
+                        continue;
                     }
                 }
             }
-
-            return filesToUpdate.Except(filesToDelete).ToList();
-        }
-        private async Task SetFinalListAsync()
-        {
-            List<FileInfoData> filesToUpdate = RemoveDuplicatesFromProjectFiles(serverFileInfos, localFileInfos).ToList();
-            List<FileInfoData> filesToUpdateFiltered = FilterOlderFiles(filesToUpdate).ToList();
-
-            var final = filesToUpdateFiltered.Where(x => !IsInExclusion(x)).GetEnumerator();
-            await jtFactory.SwitchToMainThreadAsync();
-            while (final.MoveNext())
-            {
-                FinalList.Add(final.Current);
-            }
+            return filesToUpdateFiltered.Distinct();
         }
         private bool IsInExclusion(FileInfoData x)
         {
@@ -494,15 +571,27 @@ namespace Updater.services
 
         private async Task UpdateFilesToFileDirectoryAsync()
         {
+            List<FileInfoData> output = new();
+
+            foreach (var item in finalList)
+            {
+                if (item.IsUpdateTarget) output.Add(item);
+            }
+
+            FinalList = new ObservableCollection<FileInfoData>(output);
+
             Logger(ErrorLevel.Info, "Download sequence has started...");
-            Logger(ErrorLevel.Info, $"Files count to update :: {finalList.Count}");
+            Logger(ErrorLevel.Info, $"Files count to update :: {FinalList.Count}");
 
-            bool hasUpdatedCompleted = false;
+            if (finalList.Count > 0) isUpdatedCompleted = await ExecuteUpdateAsync(FinalList).ConfigureAwait(true);
+            else
+            {
+                string errorMsg = "There is no file to update!";
+                MessageBox.Show("Info", errorMsg);
+                Logger(ErrorLevel.Warning, errorMsg);
+            }
 
-            if (finalList.Count > 0) hasUpdatedCompleted = await ExecuteUpdateAsync(finalList).ConfigureAwait(true);
-            else Logger(ErrorLevel.Warning, "There is no file to update!");
-
-            if (hasUpdatedCompleted) Logger(ErrorLevel.Info, "Download was sucessful!!");
+            if (isUpdatedCompleted) Logger(ErrorLevel.Info, "Download was sucessful!!");
 
             #region [ old code ]
 
@@ -567,13 +656,17 @@ namespace Updater.services
                     {
                         SetInitialProgressValue(finalList);
 
-                        var enumerator = finalList.GetEnumerator();
+                        var listed = finalList.ToList();
                         List<FileInfoData> downloadedFiles = new();
-                        while (enumerator.MoveNext())
+
+                        var tasks = listed.Select(file => Task.Run(() =>
                         {
-                            FileDownload(enumerator.Current);
-                            downloadedFiles.Add(enumerator.Current);
-                        }
+                            FileDownload(file);
+                            downloadedFiles.Add(file);
+                        }));
+
+                        Task.WaitAll(tasks.ToArray());
+
                         jtFactory.Run(async () =>
                         {
                             await jtFactory.SwitchToMainThreadAsync();
@@ -605,15 +698,21 @@ namespace Updater.services
         }
         private void FileDownloadBegin(FileInfoData file)
         {
-            string downloadDirectory = GetDownloadDirectory(file.Directory);
+            string localDownloadDirectory = GetDownloadDirectory(file.Directory);
             string serverDownloadDirectory = GetServerDownloadDirectory(file.Directory);
 
-            using Stream stream = File.OpenWrite(downloadDirectory);
-
-            manager.DownloadFile(serverDownloadDirectory, stream);
-            Logger(ErrorLevel.Info, $"Download Completed :: {downloadDirectory}");
+            try
+            {
+                using Stream stream = File.OpenWrite(localDownloadDirectory);
+                manager.DownloadFile(serverDownloadDirectory, stream);
+                Logger(ErrorLevel.Info, $"Download Sequence Completed :: {localDownloadDirectory}");
+            }
+            catch (IOException e)
+            {
+                Logger(ErrorLevel.Error, e.Message);
+                Logger(ErrorLevel.Error, localDownloadDirectory);
+            }
         }
-
         private string GetDownloadDirectory(string fileDirectory)
         {
             return string.Concat(info.FileDirectory, fileDirectory);
@@ -633,15 +732,19 @@ namespace Updater.services
             {
                 case Constants.ErrorLevel.Debug:
                     Log = $"{log}\nDebug - {message}";
+                    Debug.WriteLine(Log);
                     break;
                 case Constants.ErrorLevel.Info:
                     Log = $"{log}\nInfo - {message}";
+                    Debug.WriteLine(Log);
                     break;
                 case Constants.ErrorLevel.Warning:
                     Log = $"{log}\nWarning - {message}";
+                    Debug.WriteLine(Log);
                     break;
                 case Constants.ErrorLevel.Error:
                     Log = $"{log}\nError - {message}";
+                    Debug.WriteLine(Log);
                     break;
             }
         }

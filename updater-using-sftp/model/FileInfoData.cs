@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Updater.model
 {
-    public struct FileInfoData
+    public class FileInfoData
     {
+        public bool IsUpdateTarget { get; set; }
         public string Name { get; set; }
         private string directory;
         /// <summary>
@@ -27,5 +28,6 @@ namespace Updater.model
             }
         }
         public DateTime LastWrittenTime { get; set; }
+
     }
 }

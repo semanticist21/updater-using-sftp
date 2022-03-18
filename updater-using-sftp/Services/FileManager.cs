@@ -16,7 +16,7 @@ namespace Updater.services
         /// <param name="listToGet"></param>
         /// <param name="listToCompare"></param>
         /// <returns>List without files in second list</returns>
-        public static List<T> GetListWithoutDuplicates(List<T> listToGet, List<T> listToCompare)
+        public static IEnumerable<T> GetListWithoutDuplicates(List<T> listToGet, List<T> listToCompare)
         {
             // listToCompare => directoryFiles
             // listToGet => sftp files

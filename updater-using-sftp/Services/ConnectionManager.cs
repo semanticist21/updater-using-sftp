@@ -18,10 +18,11 @@ namespace Updater.services
     /// Filemanager which handles downloading, updating files from sftp server and directories.
     /// It only supports donwloading from sftp server to local directory path.
     /// </summary>
-    public class ConnectionManager
+    public sealed class ConnectionManager
     {
         #region [ Variables ]
-        private readonly SftpClient sftpClient;
+
+        private static SftpClient sftpClient;
 
         private bool isConnected;
         public bool IsConnected
@@ -36,58 +37,75 @@ namespace Updater.services
             }
         }
 
-        private List<FileInfoData> serverFiles;
+        private static List<FileInfoData> serverFiles;
         public List<FileInfoData> ServerFiles
         {
             get { return serverFiles; }
         }
 
-        private List<FileInfoData> localFiles;
+        private static List<FileInfoData> localFiles;
         public List<FileInfoData> LocalFiles
         {
             get { return localFiles; }
         }
 
-        private readonly string localFileDirectory;
+        private string localFileDirectory;
         public string LocalFileDirectory { get; }
 
-        private readonly string serverFileDirectory;
+        private string serverFileDirectory;
         public string ServerFileDirectory { get; }
         #endregion\
 
-        public ConnectionManager(CustomConnectionInfo info)
+        private static ConnectionManager singletonManager;
+        private ConnectionManager()
         {
-            #region [ variables init ]
-
             serverFiles = new List<FileInfoData>();
             localFiles = new List<FileInfoData>();
+        }
 
-            #endregion
+        public static ConnectionManager Instance()
+        {
+            if (singletonManager == null) singletonManager = new ConnectionManager();
+            return singletonManager;
+        }
 
-            sftpClient = new SftpClient(info.Address, info.Port, info.User, info.Password);
+        public void Init(CustomConnectionInfo info)
+        {
+            if (singletonManager != null)
+            {
+                if (sftpClient == null)
+                {
+                    sftpClient = new SftpClient(info.Address, info.Port, info.User, info.Password);
+                }
 
-            localFileDirectory = info.FileDirectory;
-            serverFileDirectory = info.SftpFileBaseDirectory;
+                localFileDirectory = info.FileDirectory;
+                serverFileDirectory = info.SftpFileBaseDirectory;
 
-            sftpClient.ConnectionInfo.Timeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
-            sftpClient.OperationTimeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
+                sftpClient.ConnectionInfo.Timeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
+                sftpClient.OperationTimeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
+            }
+            else
+            {
+                return;
+            }
         }
 
         /// <summary>
         /// Init connection based on given connection info
         /// check connection by manager.IsConnected
         /// </summary>
-        public void InitManager()
+        public bool InitConnection()
         {
-            try
+            if (sftpClient != null)
             {
                 sftpClient.Connect();
-                isConnected = sftpClient.IsConnected;
+                IsConnected = sftpClient.IsConnected;
+                return true;
             }
-            catch (SshOperationTimeoutException e)
+            else
             {
-                Debug.WriteLine(e.Message);
-                isConnected = false;
+                Debug.WriteLine("Please execute 'Init' method first");
+                return false;
             }
         }
         /// <summary>
@@ -141,23 +159,44 @@ namespace Updater.services
         /// </summary>
         /// <param name="baseDirectory"></param>
         /// <returns></returns>
-        public IEnumerable<FileInfoData> GetSftpFilesInfoFromDirectory(string baseDirectory)
+        public IEnumerable<FileInfoData> GetSftpFilesInfoFromTargetDirectory(string baseDirectory, string[]? targetFolderNames = null, bool isInitial = false)
         {
             if (sftpClient != null && isConnected)
             {
-                foreach (SftpFile file in sftpClient.ListDirectory(baseDirectory))
+                if (isInitial && targetFolderNames != null)
                 {
-                    if (file.Name.Equals(".") || file.Name.Equals(".."))
+                    var files = sftpClient.ListDirectory(baseDirectory);
+                    if (files.Where(x => x.IsDirectory).Select(x => x).Count() >= 1)
                     {
-                        continue;
-                    }
-                    else if (file.IsDirectory)
-                    {
-                        GetSftpFilesInfoFromDirectory(file.FullName);
+                        foreach (SftpFile file in sftpClient.ListDirectory(baseDirectory))
+                        {
+                            if (file.IsDirectory && targetFolderNames.Contains(file.Name))
+                            {
+                                GetSftpFilesInfoFromTargetDirectory(file.FullName, null, false);
+                            }
+                        }
                     }
                     else
                     {
-                        SaveSftpFileInfoTotheList(file);
+                        //pass;
+                    }
+                }
+                else
+                {
+                    foreach (SftpFile file in sftpClient.ListDirectory(baseDirectory))
+                    {
+                        if (file.Name.Equals(".") || file.Name.Equals(".."))
+                        {
+                            continue;
+                        }
+                        else if (file.IsDirectory)
+                        {
+                            GetSftpFilesInfoFromTargetDirectory(file.FullName, null, false);
+                        }
+                        else
+                        {
+                            SaveSftpFileInfoTotheList(file);
+                        }
                     }
                 }
                 return serverFiles;
@@ -173,30 +212,47 @@ namespace Updater.services
         /// </summary>
         /// <param name="baseDirectory"></param>
         /// <returns></returns>
-        public IEnumerable<FileInfoData> GetFilesInfoFromDirectory(string baseDirectory)
+        public IEnumerable<FileInfoData> GetFilesInfoFromTargetDirectory(string baseDirectory, string[]? targetFolderNames = null, bool isInitial = false)
         {
             if (sftpClient != null && isConnected)
             {
-                // get files on the directory 
                 DirectoryInfo directoryInfo = new DirectoryInfo(baseDirectory);
                 IEnumerable<FileInfo> files = directoryInfo.EnumerateFiles();
-                if (!directoryInfo.GetDirectories().Any())
+                if (isInitial && targetFolderNames != null)
                 {
-                    foreach (FileInfo file in files)
+                    if (!directoryInfo.GetDirectories().Any())
                     {
-                        SaveFileInfoToTheList(file);
+                        //pass
+                    }
+                    else if (directoryInfo.GetDirectories().Any())
+                    {
+                        foreach (DirectoryInfo directoryFolder in directoryInfo.GetDirectories())
+                        {
+                            if (targetFolderNames.Contains(directoryFolder.Name)) GetFilesInfoFromTargetDirectory(directoryFolder.FullName);
+                        }
                     }
                 }
-                else if (directoryInfo.GetDirectories().Any())
+                else
                 {
-                    foreach (FileInfo file in files)
+                    // get files on the directory 
+                    if (!directoryInfo.GetDirectories().Any())
                     {
-                        SaveFileInfoToTheList(file);
+                        foreach (FileInfo file in files)
+                        {
+                            SaveFileInfoToTheList(file);
+                        }
                     }
-
-                    foreach (DirectoryInfo directoryFolder in directoryInfo.GetDirectories())
+                    else if (directoryInfo.GetDirectories().Any())
                     {
-                        if (!directoryFolder.Name.Equals("net6.0-windows")) GetFilesInfoFromDirectory(directoryFolder.FullName);
+                        foreach (FileInfo file in files)
+                        {
+                            SaveFileInfoToTheList(file);
+                        }
+
+                        foreach (DirectoryInfo directoryFolder in directoryInfo.GetDirectories())
+                        {
+                            GetFilesInfoFromTargetDirectory(directoryFolder.FullName);
+                        }
                     }
                 }
                 return localFiles;
@@ -207,6 +263,7 @@ namespace Updater.services
                 return new List<FileInfoData>();
             }
         }
+
         public void ClearFilesInfo()
         {
             serverFiles.Clear();

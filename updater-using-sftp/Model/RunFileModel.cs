@@ -26,7 +26,10 @@ namespace Updater.Model
             }
         }
         public string RunFileName { get; set; }
-
+        /// <summary>
+        /// Save file diretory without file name.
+        /// </summary>
+        /// <param name="runFilesDirectoryInput"></param>
         private void SetFileName(string runFilesDirectoryInput)
         {
             RunFileName = FileManager<string>.GetFileNameFromDirectory(runFilesDirectoryInput);
