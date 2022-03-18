@@ -29,22 +29,22 @@ namespace Updater.model
         /// It represents base file directory where update files will be put into.
         /// example : C:/dir1/dir2
         /// </summary>
-        private string fileDirectory;
+        private string localFileDirectory;
 
-        public string FileDirectory
+        public string LocalFileDirectory
         {
             get
             {
-                return fileDirectory;
+                return localFileDirectory;
             }
             set
             {
-                if (fileDirectory != value)
+                if (localFileDirectory != value)
                 {
-                    if (!value.Contains('\\')) fileDirectory = value;
+                    if (!value.Contains('\\')) localFileDirectory = value;
                     else
                     {
-                        fileDirectory = value.Replace("\\", "/").Replace("\\", "/");
+                        localFileDirectory = value.Replace("\\", "/").Replace("\\", "/");
                     }
                 }
             }

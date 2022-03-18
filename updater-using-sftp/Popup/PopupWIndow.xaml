@@ -1,0 +1,45 @@
+﻿<Window x:Class="Updater.Popup.PopupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Updater"
+        xmlns:model="clr-namespace:Updater.Model"
+        mc:Ignorable="d"
+        x:Name="popupWindow"
+        Title="Window1" Height="350" Width="450">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.8*"/>
+            <RowDefinition Height="0.15*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.4*"/>
+                <ColumnDefinition Width="0.6*"/>
+            </Grid.ColumnDefinitions>
+            <Border  Margin="10 0 0 0" Grid.Column="0" CornerRadius="15" BorderThickness="1" BorderBrush="Black" Padding="3">
+                <TreeView BorderBrush="Transparent" ItemsSource="{Binding}">
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type model:PropertiesGroup}">
+                            <TextBlock Text="{Binding GroupName}"/>
+                        </HierarchicalDataTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type model:PropertiesItem}">
+                            <TextBlock Text="{Binding Name}"/>
+                        </HierarchicalDataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+            </Border>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.8*"/>
+                    <RowDefinition Height="0.25*"/>
+                </Grid.RowDefinitions>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="1">
+
+        </Grid>
+    </Grid>
+</Window>

@@ -19,11 +19,27 @@ using System.Windows.Input;
 using Updater.Constants;
 using Updater.model;
 using Updater.Model;
+using Updater.Popup;
 
 namespace Updater.services
 {
     public class MainwindowModel : INotifyPropertyChanged
     {
+        #region [ PropertyChanged Handler ]
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void RaisePropertyChanged(string name)
+        {
+            PropertyChangedEventHandler? handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        #endregion
+
         #region [ Private Variabels ]
 
         private int progressValue;
@@ -50,21 +66,6 @@ namespace Updater.services
         private CustomConnectionInfo info;
         private readonly JoinableTaskFactory jtFactory;
         private readonly JoinableTaskContext mainThreadContext;
-
-        #endregion
-
-        #region [ PropertyChanged Handler ]
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void RaisePropertyChanged(string name)
-        {
-            PropertyChangedEventHandler? handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
 
         #endregion
 
@@ -184,7 +185,6 @@ namespace Updater.services
         #endregion
 
         #region [ ICommands Methods ]
-
         private async void AutoCommandExecute(object param)
         {
             IsProcessOn = true;
@@ -268,7 +268,9 @@ namespace Updater.services
         }
         private void OptionsCommandExecute(object param)
         {
-            Logger(ErrorLevel.Info, "Option command has been executed.");
+            PopupWindow popupWindow = new PopupWindow();
+            popupWindow.IsTopMost = true;
+            popupWindow.Show();
         }
         private async void ExitCommandExecute(object param)
         {
@@ -306,7 +308,6 @@ namespace Updater.services
         }
 
         #endregion
-
         public MainwindowModel()
         {
             #region [ old code ]
@@ -380,7 +381,7 @@ namespace Updater.services
                 info.Password = ConfigurationManager.AppSettings["password"] ?? string.Empty;
                 info.SftpFileBaseDirectory = ConfigurationManager.AppSettings["sftpBaseDirectory"];
                 if (info.SftpFileBaseDirectory == string.Empty) info.SftpFileBaseDirectory = "/";
-                info.FileDirectory = GetCurrentFileDirectory();
+                info.LocalFileDirectory = GetCurrentFileDirectory();
 
                 folderNamesNotToUpdate = ConfigurationManager.AppSettings["folderNamesNotToUpdate"].Split(";");
                 filesNotToUpdate = ConfigurationManager.AppSettings["filesNotToUpdate"].Split(";");
@@ -395,7 +396,7 @@ namespace Updater.services
                 if (runFileModels.Count >= 1) SelectedFileModelIndex = 0;
 
                 Logger(ErrorLevel.Info, "Succesful fetched app configuration info.");
-                Logger(ErrorLevel.Info, $"Target base directory :: {info.FileDirectory}");
+                Logger(ErrorLevel.Info, $"Target base directory :: {info.LocalFileDirectory}");
             }
             else
             {
@@ -493,7 +494,7 @@ namespace Updater.services
             {
                 manager.ClearFilesInfo();
                 serverFileInfos = manager.GetSftpFilesInfoFromTargetDirectory(info.SftpFileBaseDirectory, targetFolderNames, true).ToList();
-                localFileInfos = manager.GetFilesInfoFromTargetDirectory(info.FileDirectory, targetFolderNames, true).ToList();
+                localFileInfos = manager.GetFilesInfoFromTargetDirectory(info.LocalFileDirectory, targetFolderNames, true).ToList();
             }
         }
         private void DisposeConnection()
@@ -694,7 +695,7 @@ namespace Updater.services
         }
         private void MakeEmptyDirectories(FileInfoData file)
         {
-            FileManager<FileInfoData>.MakeDirectoryIfNotExists(info.FileDirectory, file.Directory);
+            FileManager<FileInfoData>.MakeDirectoryIfNotExists(info.LocalFileDirectory, file.Directory);
         }
         private void FileDownloadBegin(FileInfoData file)
         {
@@ -715,7 +716,7 @@ namespace Updater.services
         }
         private string GetDownloadDirectory(string fileDirectory)
         {
-            return string.Concat(info.FileDirectory, fileDirectory);
+            return string.Concat(info.LocalFileDirectory, fileDirectory);
         }
         private string GetServerDownloadDirectory(string fileDirectory)
         {

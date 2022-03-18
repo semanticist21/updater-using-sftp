@@ -10,7 +10,13 @@
     <ApplicationDefinition Update="App.xaml">
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Update="Popup\PopupWIndow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Popup\PopupWIndow.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
