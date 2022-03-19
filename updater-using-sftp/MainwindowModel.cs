@@ -251,28 +251,34 @@ namespace Updater.services
 
             DisposeConnection();
             Logger(ErrorLevel.Info, "Run command is executing.");
-
-            if (RunFileModels != null && RunFileModels.Count >= 1 && RunFileModels[selectedFileModelIndex] != null)
+            try
             {
-                try
+                if (RunFileModels != null && RunFileModels.Count >= 1 && RunFileModels[selectedFileModelIndex] != null)
                 {
-                    ProcessStartInfo info = new(RunFileModels[selectedFileModelIndex].RunFilesDirectory);
-                    Process.Start(info);
+                    try
+                    {
+                        ProcessStartInfo info = new(RunFileModels[selectedFileModelIndex].RunFilesDirectory);
+                        Process.Start(info);
 
-                    await Task.Delay(1000);
+                        await Task.Delay(1000);
 
-                    Environment.Exit(0);
+                        Environment.Exit(0);
+                    }
+                    catch (ArgumentNullException)
+                    {
+                        Logger(ErrorLevel.Error, "Directory is empty. It is canceled.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger(ErrorLevel.Error, ex.Message);
+                    }
                 }
-                catch (ArgumentNullException)
-                {
-                    Logger(ErrorLevel.Error, "Directory is empty. It is canceled.");
-                }
-                catch (Exception ex)
-                {
-                    Logger(ErrorLevel.Error, ex.Message);
-                }
+                else Logger(ErrorLevel.Warning, "Warning with run file info. It is canceled.");
             }
-            else Logger(ErrorLevel.Warning, "Warning with run file info. It is canceled.");
+            catch(ArgumentException e)
+            {
+                await mainWindowInstance.ShowMessageConfirmAsync("Error", "Please select the project to start");
+            }
 
         }
         private void OptionsCommandExecute(object param)
