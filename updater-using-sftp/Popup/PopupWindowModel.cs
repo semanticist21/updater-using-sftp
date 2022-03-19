@@ -24,36 +24,57 @@ namespace Updater.Popup
 
         #region [ Private Variables ]
 
-        IEnumerable<PropertiesGroup> propertiesGroup;
-        IEnumerable<PropertiesItem> propertiesItems;
+        ObservableCollection<PropertiesGroup> propertiesGroups;
 
         #endregion
 
         #region [ Public Variabels ]
 
-        IEnumerable<PropertiesGroup> PropertiesGroup
+        public ObservableCollection<PropertiesGroup> PropertiesGroups
         {
-            get { return propertiesGroup; }
-        }
-        IEnumerable<PropertiesItem> PropertiesItems
-        {
-            get { return propertiesItems; }
+            get { return propertiesGroups; }
+            private set
+            {
+                propertiesGroups = value;
+                RaisePropertyChanged("PropertiesGroups");
+            }
         }
 
         #endregion
         internal PopupWindowModel()
         {
-            propertiesGroup = new List<PropertiesGroup>();
-            propertiesItems = new List<PropertiesItem>();
-
-            initHierarchicalItems();
+            propertiesGroups = new ObservableCollection<PropertiesGroup>();
+            InitHierarchicalItems();
         }
 
-        private void initHierarchicalItems()
+        private void InitHierarchicalItems()
         {
+            ObservableCollection<PropertiesItem> groupItems = new();
 
+            groupItems.Add(MakePropertiesItem(1, "Connection"));
+            groupItems.Add(MakePropertiesItem(2, "Directories"));
+            groupItems.Add(MakePropertiesItem(3, "Customs"));
+            PropertiesGroups.Add(MakePropertiesGroup(1, "General Configs", groupItems));
+            groupItems.Clear();
+
+            groupItems.Add(MakePropertiesItem(4, "General"));
+            PropertiesGroups.Add(MakePropertiesGroup(2, "Excludes", groupItems));
+            groupItems.Clear();
+
+            groupItems.Add(MakePropertiesItem(5, "General"));
+            PropertiesGroups.Add(MakePropertiesGroup(3, "Run Configs", groupItems));
+            groupItems.Clear();
         }
 
+        private static PropertiesItem MakePropertiesItem(int key, string name)
+        {
+            return new PropertiesItem() { Key = key, Name = name };
+        }
+
+        private static PropertiesGroup MakePropertiesGroup(int key, string groupName, ObservableCollection<PropertiesItem> groupItems)
+        {
+            return new PropertiesGroup() { Key = key, GroupName = groupName, GroupItems = new ObservableCollection<PropertiesItem>(groupItems) };
+        }
 
     }
 }

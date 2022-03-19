@@ -17,6 +17,18 @@ namespace Updater.Converter
             {
                 return !result;
             }
+            else if (value is string stringValue)
+            {
+                if (stringValue.Equals("true") || stringValue.Equals("True"))
+                {
+                    return true;
+                }
+                else if (stringValue.Equals("false") || stringValue.Equals("False"))
+                {
+                    return false;
+                }
+                else return DependencyProperty.UnsetValue;
+            }
             else return DependencyProperty.UnsetValue;
         }
 

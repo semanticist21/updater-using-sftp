@@ -21,7 +21,7 @@
             <ColumnDefinition Width="0.2*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Style="{StaticResource MainStackPanelStyle}">
-            <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" Height="25" Margin="10 0 2 10 " BorderThickness="0" Opacity="0.7"/>
+            <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" Height="25" Margin="10 0 2 5 " BorderThickness="0" Opacity="0.7"/>
             <Border Style="{StaticResource ViewBorderStyle}"  Margin="9 0 0 5">
                 <DataGrid x:Name="mainDataGrid" Height="145" AutoGenerateColumns="false" ItemsSource="{Binding FinalList, Mode=TwoWay}" FontSize="9" HorizontalScrollBarVisibility="Auto" CanUserResizeColumns="True" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeRows="False" CanUserAddRows="False" CanUserDeleteRows="False">
                     <DataGrid.Columns>
@@ -55,7 +55,7 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Border>
-            <Border Style="{StaticResource TextBorderStyle}" Margin="10 5 0 0" >
+            <Border Style="{StaticResource TextBorderStyle}" Margin="10 0 0 0" >
                 <ScrollViewer Height="110" SizeChanged="ScrollViewer_SizeChanged" Padding="0">
                     <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Log}"/>
                 </ScrollViewer>

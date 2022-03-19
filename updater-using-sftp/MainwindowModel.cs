@@ -11,6 +11,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -275,6 +276,7 @@ namespace Updater.services
         private async void ExitCommandExecute(object param)
         {
             IsProcessOn = true;
+
             Logger(ErrorLevel.Info, "Please wait until disposing manager...");
             var task = Task.Run(() => DisposeConnection());
             await task.ConfigureAwait(true);
@@ -283,6 +285,7 @@ namespace Updater.services
             await Task.Delay(200);
 
             Environment.Exit(0);
+
             IsProcessOn = false;
         }
         private bool CanExecute(object param)
@@ -530,23 +533,30 @@ namespace Updater.services
             List<FileInfoData> filesToUpdateFiltered = new();
             for (int i = 0; i < filesToUpdate.Count; i++)
             {
-                for (int j = 0; j < localFileInfos.Count; j++)
+                if (localFileInfos.Count >= 1)
                 {
-                    if (filesToUpdate[i].Directory.Equals(localFileInfos[j].Directory))
+                    for (int j = 0; j < localFileInfos.Count; j++)
                     {
-                        if (filesToUpdate[i].LastWrittenTime <= localFileInfos[j].LastWrittenTime)
+                        if (filesToUpdate[i].Directory.Equals(localFileInfos[j].Directory))
                         {
-                            continue;
+                            if (filesToUpdate[i].LastWrittenTime <= localFileInfos[j].LastWrittenTime)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                filesToUpdateFiltered.Add(filesToUpdate[i]);
+                            }
                         }
                         else
                         {
-                            filesToUpdateFiltered.Add(filesToUpdate[i]);
+                            continue;
                         }
                     }
-                    else
-                    {
-                        continue;
-                    }
+                }
+                else
+                {
+                    return filesToUpdate;
                 }
             }
             return filesToUpdateFiltered.Distinct();
@@ -588,7 +598,7 @@ namespace Updater.services
             else
             {
                 string errorMsg = "There is no file to update!";
-                MessageBox.Show("Info", errorMsg);
+                MessageBox.Show(errorMsg, "Info");
                 Logger(ErrorLevel.Warning, errorMsg);
             }
 
@@ -727,6 +737,11 @@ namespace Updater.services
             ProgressMaxValue = finalList.Count();
             ProgressValue = 0;
         }
+        /// <summary>
+        /// It casts text on the front
+        /// </summary>
+        /// <param name="level"></param>
+        /// <param name="message"></param>
         private void Logger(Constants.ErrorLevel level, string message)
         {
             switch (level)

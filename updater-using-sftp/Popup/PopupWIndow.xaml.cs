@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,12 +20,11 @@ namespace Updater.Popup
     /// </summary>
     public partial class PopupWindow : Window
     {
-        private bool isTopMost;
         public bool IsTopMost
         {
             get
             {
-                return isTopMost;
+                return this.popupWindow.Topmost;
             }
             set
             {
@@ -34,7 +34,15 @@ namespace Updater.Popup
         public PopupWindow()
         {
             InitializeComponent();
-            this.DataContext = new PopupWindowModel(); 
+            this.DataContext = new PopupWindowModel();
+        }
+
+        private void TreeView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TreeView treeView)
+            {
+                Debug.WriteLine(treeView.SelectedItem);
+            }
         }
     }
 }
