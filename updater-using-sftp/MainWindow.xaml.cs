@@ -59,6 +59,7 @@ namespace Updater
                 ConnectionManager manager = ConnectionManager.Instance();
                 manager.DiposeManager();
             }
+            Environment.Exit(0);
         }
 
         public async Task ShowMessageConfirmAsync(string title, string message)

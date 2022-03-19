@@ -35,70 +35,66 @@
         <converter:BoolenInverseConverter x:Key="BoolenInverseConverter"/>
 
     </Window.Resources>
-    <Grid Grid.Column="1" Style="{StaticResource BackgroundGridStyle}" SnapsToDevicePixels="True">
+    <Grid Grid.Column="1" Style="{StaticResource BackgroundGridStyle}" SnapsToDevicePixels="True" Background="{DynamicResource MahApps.Brushes.Accent4}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.8*"/>
             <ColumnDefinition Width="0.2*"/>
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0" Style="{StaticResource MainStackPanelStyle}">
-            <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" Height="25" Margin="10 20 0 5 " BorderThickness="0" Opacity="0.5"/>
-            <Border Style="{StaticResource ViewBorderStyle}"  Margin="9 0 0 5">
-                <DataGrid x:Name="mainDataGrid" Height="145" AutoGenerateColumns="false" ItemsSource="{Binding FinalList, Mode=TwoWay}" FontSize="9" HorizontalScrollBarVisibility="Auto" CanUserResizeColumns="True" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeRows="False" CanUserAddRows="False" CanUserDeleteRows="False">
-                    <DataGrid.Columns>
-                        <DataGridCheckBoxColumn x:Name="checkBoxColumn" Width="0.055*" Binding="{Binding IsUpdateTarget, Mode=TwoWay}" IsReadOnly="False">
-                            <DataGridCheckBoxColumn.HeaderStyle>
-                                <Style TargetType="DataGridColumnHeader">
-                                    <Setter Property="ContentTemplate">
-                                        <Setter.Value>
-                                            <DataTemplate>
-                                                <CheckBox x:Name="xCheckedAll" Click="xCheckedAll_Click" IsChecked="True" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0">
-                                                    <CheckBox.LayoutTransform>
-                                                        <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
-                                                    </CheckBox.LayoutTransform>
-                                                </CheckBox>
-                                            </DataTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </DataGridCheckBoxColumn.HeaderStyle>
-                            <DataGridCheckBoxColumn.CellStyle>
-                                <Style TargetType="{x:Type DataGridCell}">
-                                    <Setter Property="ContentTemplate">
-                                        <Setter.Value>
-                                            <DataTemplate>
-                                                <CheckBox IsChecked="{Binding IsUpdateTarget, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding DataContext.CheckCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGridCell}, Mode=FindAncestor}}" Margin="4 0 0 0">
-                                                    <CheckBox.LayoutTransform>
-                                                        <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
-                                                    </CheckBox.LayoutTransform>
-                                                </CheckBox>
-                                            </DataTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </DataGridCheckBoxColumn.CellStyle>
-                        </DataGridCheckBoxColumn>
-                        <DataGridTextColumn Width="0.25*" Header="File Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                        <DataGridTextColumn Width="0.5*" Header="Directory" Binding="{Binding Directory}" IsReadOnly="True"/>
-                        <DataGridTextColumn Width="0.25*" Header="Last Written Time" Binding="{Binding LastWrittenTime}" IsReadOnly="True"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Border>
-            <Border Style="{StaticResource TextBorderStyle}" Margin="10 0 0 0" >
-                <ScrollViewer Height="95" SizeChanged="ScrollViewer_SizeChanged" Padding="0">
-                    <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Log}"/>
-                </ScrollViewer>
-            </Border>
+            <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" Height="25" Margin="10 0 0 15 " BorderThickness="0" Opacity="0.7" Background="{DynamicResource MahApps.Brushes.ComboBox.PopupBorder}"/>
+            <DataGrid x:Name="mainDataGrid" Height="145" AutoGenerateColumns="false" ItemsSource="{Binding FinalList, Mode=TwoWay}" Margin="9 0 0 5" FontSize="9" HorizontalScrollBarVisibility="Auto" CanUserResizeColumns="True" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeRows="False" CanUserAddRows="False" CanUserDeleteRows="False" BorderBrush="{DynamicResource MahApps.Brushes.Button.Border.MouseOver}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Accent4}" Opacity="0.8">
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn x:Name="checkBoxColumn" Width="0.055*" Binding="{Binding IsUpdateTarget, Mode=TwoWay}" IsReadOnly="False">
+                        <DataGridCheckBoxColumn.HeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="ContentTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <CheckBox x:Name="xCheckedAll" Click="xCheckedAll_Click" IsChecked="True" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0">
+                                                <CheckBox.LayoutTransform>
+                                                    <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                                </CheckBox.LayoutTransform>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGridCheckBoxColumn.HeaderStyle>
+                        <DataGridCheckBoxColumn.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Setter Property="ContentTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsUpdateTarget, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding DataContext.CheckCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGridCell}, Mode=FindAncestor}}" Margin="4 0 0 0">
+                                                <CheckBox.LayoutTransform>
+                                                    <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                                </CheckBox.LayoutTransform>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGridCheckBoxColumn.CellStyle>
+                    </DataGridCheckBoxColumn>
+                    <DataGridTextColumn Width="0.25*" Header="File Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                    <DataGridTextColumn Width="0.5*" Header="Directory" Binding="{Binding Directory}" IsReadOnly="True"/>
+                    <DataGridTextColumn Width="0.27*" Header="Last Written Time" Binding="{Binding LastWrittenTime}" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <ScrollViewer Margin="10 0 0 0" Height="95" SizeChanged="ScrollViewer_SizeChanged" BorderBrush="{DynamicResource MahApps.Brushes.Button.Border.MouseOver}" Background="{DynamicResource MahApps.Brushes.Accent4}" Opacity="0.8">
+                <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Log}"/>
+            </ScrollViewer>
         </StackPanel>
-        <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}">
+        <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}" Background="{DynamicResource MahApps.Brushes.Menu.Background}" BorderBrush="Transparent">
             <StackPanel VerticalAlignment="Top" Margin="0 10 0 0">
-                <ComboBox Margin="7 3 7 3" BorderBrush="Gray" ItemsSource="{Binding RunFileModels}" DisplayMemberPath="RunFileName" SelectedIndex="{Binding SelectedFileModelIndex, Mode=TwoWay}"/>
-                <Button MinHeight="30" Margin="4" Content="Auto" Command="{Binding AutoCommand}"/>
-                <Button MinHeight="30" Margin="4" Content="{Binding ConnectionStatus, FallbackValue=Connect}" Command="{Binding ConnectCommand}"/>
-                <Button MinHeight="30" Margin="4" Content="Update" Command="{Binding UpdateCommand}"/>
-                <Button MinHeight="30" Margin="4" Content="Run Project" Command="{Binding RunCommand}"/>
-                <Button MinHeight="30" Margin="4" Content="Options" Command="{Binding OptionsCommand}"/>
-                <Button MinHeight="30" Margin="4" Content="Open local Folder" FontSize="11" Command="{Binding OpenLocalFolderCommand}"/>
-                <Button MinHeight="30" Margin="4" Content="Exit" Command="{Binding ExitCommand}"/>
+                <ComboBox Margin="7 3 7 3" ItemsSource="{Binding RunFileModels}" DisplayMemberPath="RunFileName" SelectedIndex="{Binding SelectedFileModelIndex, Mode=TwoWay}"/>
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Auto" Command="{Binding AutoCommand}"/>
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="{Binding ConnectionStatus, FallbackValue=Connect}" Command="{Binding ConnectCommand}"/>
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Update" Command="{Binding UpdateCommand}"/>
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Run Project" Command="{Binding RunCommand}"/>
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Options" Command="{Binding OptionsCommand}"/>
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Open local Folder" FontSize="9" Command="{Binding OpenLocalFolderCommand}"/>
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Exit" Command="{Binding ExitCommand}"/>
             </StackPanel>
         </Border>
     </Grid>

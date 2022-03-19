@@ -13,8 +13,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <!-- Theme setting -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.FlatButton.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Brown.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="BackgroundGridStyle" TargetType="Grid">
@@ -33,17 +32,6 @@
                 <Setter Property="Background" Value="#ffffff"/>
             </Style>
 
-            <Style x:Key="ViewBorderStyle" TargetType="Border">
-                <Setter Property="BorderThickness" Value="0.5"/>
-                <Setter Property="CornerRadius" Value="2"/>
-            </Style>
-
-            <Style x:Key="TextBorderStyle" TargetType="Border">
-                <Setter Property="BorderThickness" Value="0.5"/>
-                <Setter Property="Margin" Value="0 10 0 0"/>
-                <Setter Property="Padding" Value="0"/>
-            </Style>
-
             <!--<Style x:Key="GridViewBoxStyle" TargetType="GridViewHeaderRowPresenter">
             <Setter Property="Background" Value="{StaticResource ListBoxColor}"/>
             <Setter Property="Opacity" Value="0.9"/>
@@ -60,8 +48,8 @@
             </Style>
 
             <Style x:Key="ButtonBoxBorderStyle" TargetType="Border">
-                <Setter Property="BorderThickness" Value="0.5"/>
-                <Setter Property="CornerRadius" Value="2"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="CornerRadius" Value="0"/>
                 <Setter Property="Opacity" Value="0.9"/>
                 <Setter Property="MinWidth" Value="100"/>
                 <Setter Property="MinHeight" Value="280"/>
@@ -82,7 +70,7 @@
 
         <!--#region Normal Styles Without Template-->
 
-        
+
 
         <!--#endregion-->
 

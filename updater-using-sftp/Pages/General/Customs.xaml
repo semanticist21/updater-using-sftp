@@ -20,12 +20,12 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <iconPacks:PackIconMaterialLight Margin="10 19 0 0" Kind="Information"/>
+            <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconMaterialLight Margin="15 13 0 0" Kind="Information"/>
                 <TextBlock Margin="10 10 15 5" Width="220" Text="Run auto command on run. It connects server and updates files automatically." HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"/>
             </StackPanel>
             <StackPanel Grid.Row="1" Orientation="Vertical">
-                <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="12"
+                <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="11"
                  mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
                                  Margin="15 0 0 0"
                                  Header="≫ Auto update on run"

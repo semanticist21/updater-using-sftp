@@ -1,5 +1,6 @@
 ﻿<Page x:Class="Updater.Pages.Excludes.ExcludesGeneral"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
@@ -16,10 +17,44 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
-                <TextBlock Margin="15 15 15 5" Text="- folderNamesNotToUpdate :" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBox Margin="15 0 15 5"  Width="220" Height="20" Text="{Binding FolderNamesNotToUpdate, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
-                <TextBlock Margin="15 0 15 5" Text="- filesNotToUpdate" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                <TextBox Margin="15 0 15 5"  Width="220" Height="20" Text="{Binding FilesNotToUpdate, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <iconPacks:PackIconMaterialLight Margin="10 12 0 0" Kind="Information"/>
+                    <TextBlock Margin="10 10 15 5" Width="300" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
+                        <Run Text="Put folder names to exclude."/>
+                        <LineBreak/>
+                        <Run Text="Item wiil be excluded from the update list,"/>
+                        <LineBreak/>
+                        <Run Text="if its directory includes folder names here."/>
+                        <LineBreak/>
+                        <Run Text="Example :: log;temp;"/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="11"
+                 mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
+                                 Margin="15 0 0 0"
+                                 Header="≫ Folder Names Not To Update :"
+                                 >
+                        <TextBox Margin="0 0 15 5"  Width="280" Height="20" Text="{Binding FolderNamesNotToUpdate, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                    </mah:MetroHeader>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <iconPacks:PackIconMaterialLight Margin="10 12 0 0" Kind="Information"/>
+                        <TextBlock Margin="10 10 15 5" Width="300" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
+                        <Run Text="It works in the same way."/>
+                        <LineBreak/>
+                        <Run Text="Example :: app.config;user.settings;"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="11"
+                 mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
+                                 Margin="15 0 0 0"
+                                 Header="≫ File Names Not To Update :"
+                                 >
+                        <TextBox Margin="0 0 15 5"  Width="280" Height="20" Text="{Binding FilesNotToUpdate, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                    </mah:MetroHeader>
+                </StackPanel>
             </StackPanel>
         </Grid>
     </Border>

@@ -1,6 +1,7 @@
 ﻿<Page x:Class="Updater.Pages.Run.RunGeneral"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Updater.Pages.General"
@@ -8,6 +9,7 @@
       d:DesignHeight="450" d:DesignWidth="800"
       xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
       Style="{DynamicResource MahApps.Styles.Page}"
+
       Title="Run :: General">
 
     <Border  Background="Transparent" CornerRadius="10" BorderThickness="0.5" BorderBrush="Gray">
@@ -16,12 +18,43 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
-                <TextBlock Margin="15 15 15 5" Text="- executeFileDirectory :" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBox Margin="15 0 15 5"  Width="300" Height="20" Text="{Binding ExecuteFileDir, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
-                <TextBlock Margin="15 15 15 5" Text="- blahlbalbalbalhblah :" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="15 0 10 5" Text="- selectedFileModelIndex" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                    <TextBox Margin="0 0 15 5"  Width="20" Height="20" Text="{Binding selectedFileModeIndex,Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <iconPacks:PackIconMaterialLight Margin="15 12 0 0" Kind="Information"/>
+                    <TextBlock Margin="10 10 15 5" Width="220" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
+                        <Run Text="Put files directory you want to execute."/>
+                        <LineBreak/>
+                        <Run Text="It will be on the list of the combobox."/>
+                        <LineBreak/>
+                        <Run Text="Directories should be in local directory."/>
+                        <LineBreak/>
+                        <Run Text="Example :: ..../Main.exe;.../Main2.exe"/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="12"
+                 mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
+                                 Margin="15 0 0 0"
+                                 Header="≫ executeFileDirectory :"
+                                 >
+                        <TextBox Margin="0 0 15 5"  Width="290" Height="20" Text="{Binding ExecuteFileDir, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                    </mah:MetroHeader>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <iconPacks:PackIconMaterialLight Margin="15 12 0 0" Kind="Information"/>
+                    <TextBlock Margin="10 10 15 5" Width="220" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
+                        <Run Text="Put index item number on launch."/>
+                        <LineBreak/>
+                        <Run Text="It is not mandatory."/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="12"
+                 mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
+                                 Margin="15 0 0 0"
+                                 Header="≫ selectedFileModelIndex :"
+                                 >
+                        <TextBox Margin="0 0 15 5"  Width="20" Height="20" Text="{Binding SelectedFileModeIndex,Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                    </mah:MetroHeader>
                 </StackPanel>
             </StackPanel>
         </Grid>

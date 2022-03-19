@@ -41,7 +41,7 @@
                 </TreeView>
             </Border>
             <Border Grid.Column="1" Margin="0 10 10 11" CornerRadius="10">
-                <Frame x:Name="pageViewer" Source="/Pages/General/Customs.xaml" NavigationUIVisibility="Hidden" Background="{DynamicResource MahApps.Brushes.Menu.Background}"/>
+                <Frame x:Name="pageViewer" Source="/Pages/General/Customs.xaml" NavigationUIVisibility="Hidden"/>
             </Border>
         </Grid>
 

@@ -18,8 +18,8 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0">
-                <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <iconPacks:PackIconMaterialLight Margin="10 18 0 0" Kind="Information"/>
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconMaterialLight Margin="15 14 0 0" Kind="Information"/>
                     <TextBlock Margin="10 10 15 5" Width="220" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
                         <Run Text="Put base serach directory for server."/>
                         <LineBreak/>
@@ -32,11 +32,11 @@
                                  Margin="15 0 0 0"
                                  Header="≫ SFTP server base directory :"
                                  >
-                        <TextBox Margin="0 0 15 5"  Width="220" Height="20" Text="{Binding ServerBaseDir, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                        <TextBox Margin="0 0 15 5"  Width="280" Height="20" Text="{Binding ServerBaseDir, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
                     </mah:MetroHeader>
                 </StackPanel>
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <iconPacks:PackIconMaterialLight Margin="10 23 0 0" Kind="Information"/>
+                    <iconPacks:PackIconMaterialLight Margin="15 5 0 0" Kind="Information"/>
                     <TextBlock Margin="10 0 15 5" Width="280" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
                         <Run Text="Put folder names you want to update.  "/>
                         <LineBreak/>
