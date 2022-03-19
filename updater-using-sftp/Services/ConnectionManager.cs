@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using Updater.model;
+using Updater.Model;
 
 namespace Updater.services
 {

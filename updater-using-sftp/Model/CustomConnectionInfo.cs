@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Updater.model
+namespace Updater.Model
 {
     public struct CustomConnectionInfo
     {
