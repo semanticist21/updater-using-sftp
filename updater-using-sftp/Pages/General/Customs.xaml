@@ -2,24 +2,45 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Updater.Pages.General"
+      xmlns:converter="clr-namespace:Updater.Converter"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="Customs">
-
+      xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+      Style="{DynamicResource MahApps.Styles.Page}"
+      Title="General :: Custom Options">
+    <Page.Resources>
+        <converter:StringToBooleanConverter x:Key="StringToBooleanConverter"/>
+    </Page.Resources>
     <Border  Background="Transparent" CornerRadius="10" BorderThickness="0.5" BorderBrush="Gray">
         <Grid Margin="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0">
-                <TextBlock Margin="15 15 15 5" Text="Run auto command which executes connecting server and updating files automatically" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <iconPacks:PackIconMaterialLight Margin="10 19 0 0" Kind="Information"/>
+                <TextBlock Margin="10 10 15 5" Width="220" Text="Run auto command on run. It connects server and updates files automatically." HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"/>
             </StackPanel>
-            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                <TextBlock Margin="15 0 15 5" Text="- Auto update" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <CheckBox Margin="-8 1 15 5" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <StackPanel Grid.Row="1" Orientation="Vertical">
+                <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="12"
+                 mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
+                                 Margin="15 0 0 0"
+                                 Header="≫ Auto update on run"
+                 >
+                    <mah:ToggleSwitch 
+                    OffContent="Disabeld"
+                    OnContent="Enabled"
+                    IsOn="{Binding IsAutoUpdateOn, Converter={StaticResource StringToBooleanConverter}, Mode=TwoWay}"
+                    >
+                        <mah:ToggleSwitch.LayoutTransform>
+                            <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
+                        </mah:ToggleSwitch.LayoutTransform>
+                    </mah:ToggleSwitch>
+                </mah:MetroHeader>
+                <!--<CheckBox Margin="15 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" IsChecked="{Binding IsAutoUpdateOn, Converter={StaticResource StringToBooleanConverter}, Mode=TwoWay}"/>-->
             </StackPanel>
         </Grid>
     </Border>

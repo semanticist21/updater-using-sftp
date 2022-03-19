@@ -81,8 +81,8 @@ namespace Updater.services
                 localFileDirectory = info.LocalFileDirectory;
                 serverFileDirectory = info.SftpFileBaseDirectory;
 
-                sftpClient.ConnectionInfo.Timeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
-                sftpClient.OperationTimeout = TimeSpan.FromSeconds(5); //SshOperationTimeoutException
+                sftpClient.ConnectionInfo.Timeout = TimeSpan.FromSeconds(15); //SshOperationTimeoutException
+                sftpClient.OperationTimeout = TimeSpan.FromSeconds(15); //SshOperationTimeoutException
             }
             else
             {

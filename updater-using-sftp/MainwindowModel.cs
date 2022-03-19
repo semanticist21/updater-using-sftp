@@ -68,6 +68,8 @@ namespace Updater.services
         private readonly JoinableTaskFactory jtFactory;
         private readonly JoinableTaskContext mainThreadContext;
 
+        private MainWindow mainWindowInstance;
+
         #endregion
 
         #region [ Public Variabels ]
@@ -183,6 +185,8 @@ namespace Updater.services
         public ICommand RunCommand { get; }
         public ICommand OptionsCommand { get; }
         public ICommand ExitCommand { get; }
+        public ICommand OpenLocalFolderCommand { get; }
+
         #endregion
 
         #region [ ICommands Methods ]
@@ -206,7 +210,7 @@ namespace Updater.services
                 }
                 else
                 {
-                    Logger(ErrorLevel.Error, "Something went wrong during the update");
+                    Logger(ErrorLevel.Error, "Something went wrong during the process.");
                 }
             }
             else if (manager.IsConnected && isUpdatedCompleted)
@@ -217,7 +221,7 @@ namespace Updater.services
                 }
                 else
                 {
-                    Logger(ErrorLevel.Error, "Something went wrong during the update");
+                    Logger(ErrorLevel.Error, "Something went wrong during the process.");
                 }
             }
             else
@@ -241,6 +245,8 @@ namespace Updater.services
         }
         private async void RunCommandExecute(object? param)
         {
+            IsProcessOn = true;
+
             DisposeConnection();
             Logger(ErrorLevel.Info, "Run command is executing.");
 
@@ -271,6 +277,7 @@ namespace Updater.services
         {
             PopupWindow popupWindow = new PopupWindow();
             popupWindow.IsTopMost = true;
+            //bool? result = popupWindow.ShowDialog();
             popupWindow.Show();
         }
         private async void ExitCommandExecute(object param)
@@ -288,10 +295,20 @@ namespace Updater.services
 
             IsProcessOn = false;
         }
+        private async void OpenLocalFolderCommandExecute(object parameter)
+        {
+            string dir = this.GetCurrentFileDirectory();
+            dir = dir.Replace("/", "\\");
+            Process.Start("explorer.exe",dir);
+        }
         private bool CanExecute(object param)
         {
             if (!isProcessOn) return true;
             else return false;
+        }
+        private bool CanExecuteTrue(object param)
+        {
+            return true;
         }
         private bool CanExecuteUpdate(object param)
         {
@@ -366,6 +383,9 @@ namespace Updater.services
             RunCommand = new DelegateCommand(RunCommandExecute, CanExecute, jtFactory);
             OptionsCommand = new DelegateCommand(OptionsCommandExecute, CanExecute, jtFactory);
             ExitCommand = new DelegateCommand(ExitCommandExecute, CanExecute, jtFactory);
+            OpenLocalFolderCommand = new DelegateCommand(OpenLocalFolderCommandExecute, CanExecuteTrue, jtFactory);
+
+            mainWindowInstance = Application.Current.MainWindow as MainWindow;
         }
 
         #region [ Init Variables Methods ]
@@ -388,7 +408,7 @@ namespace Updater.services
 
                 folderNamesNotToUpdate = ConfigurationManager.AppSettings["folderNamesNotToUpdate"].Split(";");
                 filesNotToUpdate = ConfigurationManager.AppSettings["filesNotToUpdate"].Split(";");
-                targetFolderNames = ConfigurationManager.AppSettings["TargetFolderNames"].Split(";");
+                targetFolderNames = ConfigurationManager.AppSettings["targetFolderNames"].Split(";");
 
                 List<string> FileLists = ConfigurationManager.AppSettings["executeFileDirectory"].Split(';').ToList();
                 IsParsed = int.TryParse(ConfigurationManager.AppSettings["selectedFileModelIndex"], out int resultIntTwo);
@@ -396,10 +416,12 @@ namespace Updater.services
 
                 FileLists.ForEach(x => AddRunFileModels(x));
                 runFileModels = new ObservableCollection<RunFileModel>(runFileModels.Where(x => !string.IsNullOrWhiteSpace(x.RunFileName)).Cast<RunFileModel>());
-                if (runFileModels.Count >= 1) SelectedFileModelIndex = 0;
 
-                Logger(ErrorLevel.Info, "Succesful fetched app configuration info.");
+                Logger(ErrorLevel.Info, "Succesfully fetched app configuration info.");
                 Logger(ErrorLevel.Info, $"Target base directory :: {info.LocalFileDirectory}");
+
+                if (info.User.Equals(string.Empty)) Logger(ErrorLevel.Error, "There is no user info!!");
+                if (info.Password.Equals(string.Empty)) Logger(ErrorLevel.Error, "There is no password info!!");
             }
             else
             {
@@ -598,7 +620,7 @@ namespace Updater.services
             else
             {
                 string errorMsg = "There is no file to update!";
-                MessageBox.Show(errorMsg, "Info");
+                await mainWindowInstance.ShowMessageConfirmAsync("Update Canceled", errorMsg);
                 Logger(ErrorLevel.Warning, errorMsg);
             }
 

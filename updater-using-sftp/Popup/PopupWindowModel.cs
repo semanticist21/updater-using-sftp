@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Updater.Model;
+using Updater.Pages.General;
+using Updater.Pages.Run;
 
 namespace Updater.Popup
 {
@@ -24,7 +29,24 @@ namespace Updater.Popup
 
         #region [ Private Variables ]
 
-        ObservableCollection<PropertiesGroup> propertiesGroups;
+        private ObservableCollection<PropertiesGroup> propertiesGroups;
+
+        private string ipAddress;
+        private string port;
+        private string user;
+        private string password;
+
+        private string serverBaseDir;
+        private string localDir;
+        private string targetFolders;
+
+        private string isAutoUpdateOn;
+
+        private string folderNamesNotToUpdate;
+        private string filesNotToUpdate;
+
+        private string executeFileDir;
+        private string selectedFileModeIndex;
 
         #endregion
 
@@ -40,13 +62,146 @@ namespace Updater.Popup
             }
         }
 
+        public string IpAddress
+        {
+            get { return ipAddress; }
+            set
+            {
+                bool result = IPAddress.TryParse(ipAddress, out _);
+                if (result) ipAddress = value;
+                else ipAddress = String.Empty;
+                RaisePropertyChanged("IpAddress");
+            }
+        }
+        public string Port
+        {
+            get { return port; }
+            set
+            {
+                bool result = int.TryParse(value, out _);
+                if (result) port = value;
+                else port = "22";
+                RaisePropertyChanged("Port");
+            }
+        }
+        public string User
+        {
+            get { return user; }
+            set
+            {
+                user = value;
+                RaisePropertyChanged("User");
+            }
+        }
+        public string Password
+        {
+            get { return password; }
+            set
+            {
+                password = value;
+                RaisePropertyChanged("Password");
+            }
+        }
+
+        public string ServerBaseDir
+        {
+            get { return serverBaseDir; }
+            set
+            {
+                if (value.Contains("\\")) value = value.Replace("\\", "/");
+                serverBaseDir = value;
+                RaisePropertyChanged("ServerBaseDir");
+            }
+        }
+        public string LocalDir
+        {
+            get { return localDir; }
+            set
+            {
+                if (value.Contains("\\")) value = value.Replace("\\", "/");
+                localDir = value;
+                RaisePropertyChanged("LocalDir");
+            }
+        }
+        public string TargetFolders
+        {
+            get { return targetFolders; }
+            set
+            {
+                if (value.Contains("\\")) value = value.Replace("\\", "/");
+                targetFolders = value;
+                RaisePropertyChanged("TargetFolders");
+            }
+        }
+
+        public string IsAutoUpdateOn
+        {
+            get { return isAutoUpdateOn; }
+            set
+            {
+                isAutoUpdateOn = value;
+                RaisePropertyChanged("IsAutoUpdateOn");
+            }
+        }
+        public string FolderNamesNotToUpdate
+        {
+            get { return folderNamesNotToUpdate; }
+            set
+            {
+                folderNamesNotToUpdate = value;
+                RaisePropertyChanged("FolderNamesNotToUpdate");
+            }
+        }
+        public string FilesNotToUpdate
+        {
+            get { return filesNotToUpdate; }
+            set
+            {
+                filesNotToUpdate = value;
+                RaisePropertyChanged("FilesNotToUpdate");
+            }
+        }
+
+        public string ExecuteFileDir
+        {
+            get { return executeFileDir; }
+            set
+            {
+                if (value.Contains("\\")) value = value.Replace("\\", "/");
+                executeFileDir = value;
+                RaisePropertyChanged("ExecuteFileDir");
+            }
+        }
+        public string SelectedFileModeIndex
+        {
+            get { return selectedFileModeIndex; }
+            set
+            {
+                selectedFileModeIndex = value;
+                RaisePropertyChanged("SelectedFileModeIndex");
+            }
+        }
+
         #endregion
-        internal PopupWindowModel()
+
+        private static PopupWindowModel popupWindowModel;
+        private PopupWindowModel()
         {
             propertiesGroups = new ObservableCollection<PropertiesGroup>();
             InitHierarchicalItems();
+            InitConfigurations();
         }
 
+        public static PopupWindowModel Instance()
+        {
+            if (popupWindowModel == null)
+            {
+                popupWindowModel = new PopupWindowModel();
+            }
+            return popupWindowModel;
+        }
+
+        #region [ Make Option Properties Tree Item ] 
         private void InitHierarchicalItems()
         {
             ObservableCollection<PropertiesItem> groupItems = new();
@@ -75,6 +230,30 @@ namespace Updater.Popup
         {
             return new PropertiesGroup() { Key = key, GroupName = groupName, GroupItems = new ObservableCollection<PropertiesItem>(groupItems) };
         }
+
+        #endregion
+
+        #region [ init page option variables ] 
+
+        private void InitConfigurations()
+        {
+            isAutoUpdateOn = ConfigurationManager.AppSettings["isAutoUpdateEnabled"];
+            ipAddress = ConfigurationManager.AppSettings["ipAddress"];
+            port = ConfigurationManager.AppSettings["port"];
+            user = ConfigurationManager.AppSettings["user"];
+            password = ConfigurationManager.AppSettings["password"];
+
+            serverBaseDir = ConfigurationManager.AppSettings["sftpBaseDirectory"];
+
+            targetFolders = ConfigurationManager.AppSettings["targetFolderNames"];
+            folderNamesNotToUpdate = ConfigurationManager.AppSettings["folderNamesNotToUpdate"];
+            filesNotToUpdate = ConfigurationManager.AppSettings["filesNotToUpdate"];
+
+            executeFileDir = ConfigurationManager.AppSettings["executeFileDirectory"];
+            selectedFileModeIndex = ConfigurationManager.AppSettings["selectedFileModelIndex"];
+        }
+
+        #endregion
 
     }
 }

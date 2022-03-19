@@ -7,50 +7,44 @@
              >
     <Application.Resources>
 
-        <!--#region Solid Color Brushes-->
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <!-- Theme setting -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.FlatButton.xaml" />
+            </ResourceDictionary.MergedDictionaries>
 
-        <SolidColorBrush x:Key="BackgroundColor" Color="#C5CAE9"/>
-        <SolidColorBrush x:Key="BorderColor" Color="#fafafa"/>
-        <SolidColorBrush x:Key="ButtonBoxBorderColor" Color="#E8EAF6"/>
-        <SolidColorBrush x:Key="ListBoxColor" Color="#E8EAF6"/>
-        <SolidColorBrush x:Key="TextBlockColor" Color="#E8EAF6"/>
-        <SolidColorBrush x:Key="ButtonBackgroundColor" Color="#E8EAF6"/>
+            <Style x:Key="BackgroundGridStyle" TargetType="Grid">
+            </Style>
 
-        <!--#endregion-->
+            <Style x:Key="MainStackPanelStyle" TargetType="StackPanel">
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="MinWidth" Value="100"/>
+                <Setter Property="Margin" Value="0 0 10 0"/>
+            </Style>
 
-        <!--#region Normal Styles Without Template-->
+            <Style x:Key="ButtonStackPanelStyle" TargetType="StackPanel">
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="VerticalAlignment" Value="Stretch"/>
+                <Setter Property="Background" Value="#ffffff"/>
+            </Style>
 
-        <Style x:Key="BackgroundGridStyle" TargetType="Grid">
-            <Setter Property="Background" Value="{StaticResource BackgroundColor}"/>
-        </Style>
+            <Style x:Key="ViewBorderStyle" TargetType="Border">
+                <Setter Property="BorderThickness" Value="0.5"/>
+                <Setter Property="CornerRadius" Value="2"/>
+            </Style>
 
-        <Style x:Key="MainStackPanelStyle" TargetType="StackPanel">
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="MinWidth" Value="100"/>
-            <Setter Property="Margin" Value="0 0 10 0"/>
-        </Style>
+            <Style x:Key="TextBorderStyle" TargetType="Border">
+                <Setter Property="BorderThickness" Value="0.5"/>
+                <Setter Property="Margin" Value="0 10 0 0"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
 
-        <Style x:Key="ButtonStackPanelStyle" TargetType="StackPanel">
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="VerticalAlignment" Value="Stretch"/>
-            <Setter Property="Background" Value="#ffffff"/>
-        </Style>
-
-        <Style x:Key="ViewBorderStyle" TargetType="Border">
-            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
-            <Setter Property="BorderThickness" Value="0.5"/>
-            <Setter Property="CornerRadius" Value="2"/>
-        </Style>
-
-        <Style x:Key="TextBorderStyle" TargetType="Border">
-            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
-            <Setter Property="BorderThickness" Value="0.5"/>
-            <Setter Property="Margin" Value="0 10 0 0"/>
-            <Setter Property="Padding" Value="0"/>
-        </Style>
-
-        <!--<Style x:Key="GridViewBoxStyle" TargetType="GridViewHeaderRowPresenter">
+            <!--<Style x:Key="GridViewBoxStyle" TargetType="GridViewHeaderRowPresenter">
             <Setter Property="Background" Value="{StaticResource ListBoxColor}"/>
             <Setter Property="Opacity" Value="0.9"/>
             <Setter Property="Width" Value="450"/>
@@ -58,31 +52,44 @@
             <Setter Property="BorderThickness" Value="0"/>
         </Style>-->
 
-        <Style x:Key="TextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource TextBlockColor}"/>
-            <Setter Property="Opacity" Value="0.9"/>
-            <Setter Property="IsReadOnly" Value="True"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin" Value="0"/>
-        </Style>
+            <Style x:Key="TextBoxStyle" TargetType="TextBox">
+                <Setter Property="Opacity" Value="0.9"/>
+                <Setter Property="IsReadOnly" Value="True"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="Margin" Value="0"/>
+            </Style>
 
-        <Style x:Key="ButtonBoxBorderStyle" TargetType="Border">
-            <Setter Property="BorderBrush" Value="{StaticResource ButtonBoxBorderColor}"/>
-            <Setter Property="BorderThickness" Value="0.5"/>
-            <Setter Property="CornerRadius" Value="2"/>
-            <Setter Property="Background" Value="{StaticResource ButtonBackgroundColor}"/>
-            <Setter Property="Opacity" Value="0.9"/>
-            <Setter Property="MinWidth" Value="100"/>
-            <Setter Property="MinHeight" Value="280"/>
-        </Style>
+            <Style x:Key="ButtonBoxBorderStyle" TargetType="Border">
+                <Setter Property="BorderThickness" Value="0.5"/>
+                <Setter Property="CornerRadius" Value="2"/>
+                <Setter Property="Opacity" Value="0.9"/>
+                <Setter Property="MinWidth" Value="100"/>
+                <Setter Property="MinHeight" Value="280"/>
+            </Style>
 
+        </ResourceDictionary>
+
+        <!--#region Solid Color Brushes-->
+
+        <!--<SolidColorBrush x:Key="BackgroundColor" Color="#C5CAE9"/>
+        <SolidColorBrush x:Key="BorderColor" Color="#fafafa"/>
+        <SolidColorBrush x:Key="ButtonBoxBorderColor" Color="#E8EAF6"/>
+        <SolidColorBrush x:Key="ListBoxColor" Color="#E8EAF6"/>
+        <SolidColorBrush x:Key="TextBlockColor" Color="#E8EAF6"/>
+        <SolidColorBrush x:Key="ButtonBackgroundColor" Color="#E8EAF6"/>-->
+
+        <!--#endregion-->
+
+        <!--#region Normal Styles Without Template-->
+
+        
 
         <!--#endregion-->
 
 
         <!--#region [ Styles with Template] -->
 
-        <SolidColorBrush x:Key="BorderLightColor" Color="#EDE7F6"/>
+        <!--<SolidColorBrush x:Key="BorderLightColor" Color="#EDE7F6"/>
         <SolidColorBrush x:Key="BorderDarkColor" Color="#EDE7F6"/>
         <SolidColorBrush x:Key="ControlLightColor" Color="#EDE7F6"/>
         <SolidColorBrush x:Key="ControlMediumColor" Color="#EDE7F6"/>
@@ -93,12 +100,8 @@
         <SolidColorBrush x:Key="DisabledControlDarkColor" Color="#E0E0E0"/>
         <SolidColorBrush x:Key="DisabledForegroundColor" Color="#E0E0E0"/>
         <SolidColorBrush x:Key="DisabledBorderDarkColor" Color="#E0E0E0"/>
-        <SolidColorBrush x:Key="DefaultBorderBrushLightBrush" Color="#673AB7"/>
-        <SolidColorBrush x:Key="DefaultBorderBrushDarkColor" Color="#673AB7"/>
-
-        <Style x:Key="DefaultButtonStyle" TargetType="Button">
-            
-        </Style>
+        <SolidColorBrush x:Key="DefaultBorderBrushLightBrush" Color="#673AB7"/>-->
+        <!--<SolidColorBrush x:Key="DefaultBorderBrushDarkColor" Color="#673AB7"/>-->
 
         <!--<Style x:Key="DefaultButtonStyle" TargetType="Button">
             <Setter Property="Template">

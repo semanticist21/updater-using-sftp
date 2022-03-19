@@ -6,7 +6,9 @@
       xmlns:local="clr-namespace:Updater.Pages.General"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="Customs">
+      xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+      Style="{DynamicResource MahApps.Styles.Page}"
+      Title="Excludes :: General">
 
     <Border  Background="Transparent" CornerRadius="10" BorderThickness="0.5" BorderBrush="Gray">
         <Grid Margin="0">
@@ -15,9 +17,9 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
                 <TextBlock Margin="15 15 15 5" Text="- folderNamesNotToUpdate :" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBox Margin="15 0 15 5"  Width="300" Height="20" Text="23123.2321.123" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                <TextBox Margin="15 0 15 5"  Width="220" Height="20" Text="{Binding FolderNamesNotToUpdate, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
                 <TextBlock Margin="15 0 15 5" Text="- filesNotToUpdate" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                <TextBox Margin="15 0 15 5"  Width="300" Height="20" Text="23123.2321.123" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
+                <TextBox Margin="15 0 15 5"  Width="220" Height="20" Text="{Binding FilesNotToUpdate, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
             </StackPanel>
         </Grid>
     </Border>

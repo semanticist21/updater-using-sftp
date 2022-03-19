@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Updater.Popup;
 
 namespace Updater.Pages.General
 {
@@ -22,6 +23,7 @@ namespace Updater.Pages.General
     {
         public Connection()
         {
+            this.DataContext = PopupWindowModel.Instance();
             InitializeComponent();
         }
     }

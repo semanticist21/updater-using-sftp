@@ -1,13 +1,16 @@
-﻿<Window x:Class="Updater.Popup.PopupWindow"
+﻿<mah:MetroWindow x:Class="Updater.Popup.PopupWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Updater"
         xmlns:model="clr-namespace:Updater.Model"
         mc:Ignorable="d"
         x:Name="popupWindow"
-        Title="Window1" Height="350" Width="450">
+        ResizeMode="CanMinimize"
+        Title="Options" Height="350" Width="550">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.8*"/>
@@ -15,32 +18,38 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.4*"/>
-                <ColumnDefinition Width="0.6*"/>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.8*"/>
             </Grid.ColumnDefinitions>
-            <Border Margin="10" Grid.Column="0" CornerRadius="15" BorderThickness="0.5" BorderBrush="Gray" Padding="4" Background="Wheat">
-                <TreeView ItemsSource="{Binding PropertiesGroups}" BorderBrush="Transparent" MouseDoubleClick="TreeView_MouseDoubleClick" Background="Wheat">
+            <Border Margin="10" Grid.Column="0" CornerRadius="15" BorderThickness="0.5" BorderBrush="Gray" Padding="6">
+                <TreeView ItemsSource="{Binding PropertiesGroups}" MouseDoubleClick="TreeView_MouseDoubleClick">
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type model:PropertiesGroup}" ItemsSource="{Binding GroupItems}">
-                            <TextBlock Text="{Binding GroupName}" Margin="0 0 5 5">
-                            </TextBlock>
+                            <TextBlock Text="{Binding GroupName}" Margin="0 0 5 0"/>
                         </HierarchicalDataTemplate>
                         <DataTemplate DataType="{x:Type model:PropertiesItem}">
-                            <TextBlock Text="{Binding Name}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <iconPacks:PackIconMaterialLight Margin="3" VerticalAlignment="Center" Kind="Note">
+                                    <iconPacks:PackIconMaterialLight.LayoutTransform>
+                                        <ScaleTransform ScaleX="0.75" ScaleY="1"/>
+                                    </iconPacks:PackIconMaterialLight.LayoutTransform>
+                                </iconPacks:PackIconMaterialLight>
+                                <TextBlock Text="{Binding Name}" Margin="2 2 0 0"/>
+                            </StackPanel>
                         </DataTemplate>
                     </TreeView.Resources>
                 </TreeView>
             </Border>
-            <Border Grid.Column="1" Margin="0 10 10 10" Background="Wheat" CornerRadius="10">
-                <Frame Source="/Pages/General/Customs.xaml"/>
+            <Border Grid.Column="1" Margin="0 10 10 11" CornerRadius="10">
+                <Frame x:Name="pageViewer" Source="/Pages/General/Customs.xaml" NavigationUIVisibility="Hidden" Background="{DynamicResource MahApps.Brushes.Menu.Background}"/>
             </Border>
         </Grid>
 
         <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button Content="OK" Width="60" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="30 0 30 0"/>
-                <Button Content="Cancel"  Width="60" Height="30" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="30 0 30 0"/>
+                <Button Content="OK" Width="65" Height="35" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20 0 5 10"/>
+                <Button Content="Cancel"  Width="65" Height="35" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5 0 20 10"/>
             </StackPanel>
         </Grid>
     </Grid>
-</Window>
+</mah:MetroWindow>

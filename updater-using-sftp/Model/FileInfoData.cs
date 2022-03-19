@@ -24,7 +24,6 @@ namespace Updater.model
                     if (!value.First().Equals("\\")) directory = value;
                     else directory = string.Concat(value.Skip(1));
                 }
-
             }
         }
         public DateTime LastWrittenTime { get; set; }
