@@ -56,6 +56,7 @@ namespace Updater.services
         private bool isAutoUpdateEnabled;
         private bool isProcessOn;
         private bool isUpdatedCompleted;
+        private bool isSettingRefreshedFromLastConnection;
 
         private List<FileInfoData> serverFileInfos;
         private List<FileInfoData> localFileInfos;
@@ -190,13 +191,13 @@ namespace Updater.services
         #endregion
 
         #region [ ICommands Methods ]
-        private async void AutoCommandExecute(object param)
+        private async void AutoCommandExecute(object? param)
         {
             IsProcessOn = true;
 
             if (manager == null || !manager.IsConnected)
             {
-                await InitConnectionAsync(info);
+                await InitConnectionAsync(info, true);
             }
 
             if (manager.IsConnected && !isUpdatedCompleted)
@@ -217,6 +218,7 @@ namespace Updater.services
             {
                 if (isUpdatedCompleted)
                 {
+                    await Task.Delay(1000);
                     RunCommandExecute(null);
                 }
                 else
@@ -231,9 +233,10 @@ namespace Updater.services
 
             IsProcessOn = false;
         }
-        private async void ConnectCommandExecute(object param)
+        private async void ConnectCommandExecute(object? param)
         {
             await InitConnectionAsync(info);
+            isSettingRefreshedFromLastConnection = false;
         }
         private async void UpdateCommandExecute(object param)
         {
@@ -275,10 +278,47 @@ namespace Updater.services
         }
         private void OptionsCommandExecute(object param)
         {
+            IsProcessOn = true;
+
             PopupWindow popupWindow = new PopupWindow();
             popupWindow.IsTopMost = true;
+            popupWindow.Owner = mainWindowInstance;
+            bool? result = popupWindow.ShowDialog();
+
+            if (result == true)
+            {
+                PopupWindowModel popupModel = PopupWindowModel.Instance();
+
+                var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+                config.AppSettings.Settings["isAutoUpdateEnabled"].Value = popupModel.IsAutoUpdateOn;
+
+                config.AppSettings.Settings["ipAddress"].Value = popupModel.IpAddress;
+                config.AppSettings.Settings["port"].Value = popupModel.Port;
+                config.AppSettings.Settings["user"].Value = popupModel.User;
+                config.AppSettings.Settings["password"].Value = popupModel.Password;
+
+                config.AppSettings.Settings["sftpBaseDirectory"].Value = popupModel.ServerBaseDir;
+                config.AppSettings.Settings["targetFolderNames"].Value = popupModel.TargetFolders;
+
+                config.AppSettings.Settings["folderNamesNotToUpdate"].Value = popupModel.FolderNamesNotToUpdate;
+                config.AppSettings.Settings["filesNotToUpdate"].Value = popupModel.FilesNotToUpdate;
+
+                config.AppSettings.Settings["executeFileDirectory"].Value = popupModel.ExecuteFileDir;
+                config.AppSettings.Settings["selectedFileModelIndex"].Value = popupModel.SelectedFileModeIndex;
+
+                config.AppSettings.CurrentConfiguration.Save(ConfigurationSaveMode.Modified);
+
+                getCustomInfoFromSetting();
+                if (manager != null && manager.IsConnected) ConnectionStatus = "Reconnect";
+                isSettingRefreshedFromLastConnection = true;
+                Logger(ErrorLevel.Info, "Changes were saved.");
+            }
+
+
             //bool? result = popupWindow.ShowDialog();
-            popupWindow.Show();
+            IsProcessOn = false;
+
         }
         private async void ExitCommandExecute(object param)
         {
@@ -295,11 +335,11 @@ namespace Updater.services
 
             IsProcessOn = false;
         }
-        private async void OpenLocalFolderCommandExecute(object parameter)
+        private async void OpenLocalFolderCommandExecute(object param)
         {
             string dir = this.GetCurrentFileDirectory();
             dir = dir.Replace("/", "\\");
-            Process.Start("explorer.exe",dir);
+            Process.Start("explorer.exe", dir);
         }
         private bool CanExecute(object param)
         {
@@ -321,6 +361,7 @@ namespace Updater.services
             if (manager != null)
             {
                 if (!isProcessOn && !manager.IsConnected) return true;
+                else if (!isProcessOn && manager != null && isSettingRefreshedFromLastConnection) return true;
                 else return false;
             }
             else if (!isProcessOn) return true;
@@ -386,6 +427,8 @@ namespace Updater.services
             OpenLocalFolderCommand = new DelegateCommand(OpenLocalFolderCommandExecute, CanExecuteTrue, jtFactory);
 
             mainWindowInstance = Application.Current.MainWindow as MainWindow;
+
+            if (isAutoUpdateEnabled) AutoCommandExecute(null);
         }
 
         #region [ Init Variables Methods ]
@@ -412,10 +455,10 @@ namespace Updater.services
 
                 List<string> FileLists = ConfigurationManager.AppSettings["executeFileDirectory"].Split(';').ToList();
                 IsParsed = int.TryParse(ConfigurationManager.AppSettings["selectedFileModelIndex"], out int resultIntTwo);
-                SetCheckBoxInitialIndex(resultIntTwo, FileLists.Count(), IsParsed);
 
+                runFileModels.Clear();
                 FileLists.ForEach(x => AddRunFileModels(x));
-                runFileModels = new ObservableCollection<RunFileModel>(runFileModels.Where(x => !string.IsNullOrWhiteSpace(x.RunFileName)).Cast<RunFileModel>());
+                SetCheckBoxInitialIndex(resultIntTwo, runFileModels.Count(), IsParsed);
 
                 Logger(ErrorLevel.Info, "Succesfully fetched app configuration info.");
                 Logger(ErrorLevel.Info, $"Target base directory :: {info.LocalFileDirectory}");
@@ -428,10 +471,10 @@ namespace Updater.services
                 Logger(ErrorLevel.Error, "Failed to fetch app configuration info.");
             }
         }
-        private string AddRunFileModels(string x)
+        private void AddRunFileModels(string x)
         {
+            if (string.IsNullOrEmpty(x) || string.IsNullOrWhiteSpace(x)) return;
             runFileModels.Add(new RunFileModel { RunFilesDirectory = x });
-            return x;
         }
         private string GetCurrentFileDirectory()
         {
@@ -459,14 +502,14 @@ namespace Updater.services
         #endregion
 
         #region [ Connection Methods ]
-        public async Task InitConnectionAsync(CustomConnectionInfo info)
+        public async Task InitConnectionAsync(CustomConnectionInfo info, bool isFromAutoCommand = false)
         {
             IsProcessOn = true;
             ConnectionStatus = "Connecting...";
 
             try
             {
-                await Task.Run(() => StartConnection(info));
+                await StartConnection(info);
                 if (manager.IsConnected)
                 {
 
@@ -503,12 +546,16 @@ namespace Updater.services
             }
             finally
             {
-                IsProcessOn = false;
+                if(!isFromAutoCommand)IsProcessOn = false;
             }
         }
-        private void StartConnection(CustomConnectionInfo info)
+        private async Task StartConnection(CustomConnectionInfo info)
         {
+            await TaskScheduler.Default;
             manager = ConnectionManager.Instance();
+            //if already connected, disconnect the connecdtion
+
+            if (manager.IsConnected) manager.DisconnectManager();
             manager.Init(info);
             bool isInstanced = manager.InitConnection();
             if (isInstanced) Logger(ErrorLevel.Info, "SFTP client instance was created.");

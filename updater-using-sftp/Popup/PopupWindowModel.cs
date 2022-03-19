@@ -1,13 +1,18 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Threading;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using Updater.Model;
 using Updater.Pages.General;
 using Updater.Pages.Run;
@@ -184,12 +189,53 @@ namespace Updater.Popup
 
         #endregion
 
+        #region [ Icommands ]
+
+        public ICommand ConfirmCommand { get; }
+        public ICommand CloseCommand { get; }
+
+        #endregion
+
+        #region [ Icommands Methods ]
+        private bool CanExecute(object param)
+        {
+            return true;
+        }
+        private async void ConfirmCommandExecuteAsync(object param)
+        {
+            if (param is PopupWindow popupWindow)
+            {
+                await Task.Yield();
+                popupWindow.DialogResult = true;
+                popupWindow.Close();
+            }
+        }
+
+        private async void CloseCommandExecuteAsync(object param)
+        {
+            if (param is PopupWindow popupWindow)
+            {
+                await Task.Yield();
+                popupWindow.DialogResult = false;
+                InitConfigurations();
+                popupWindow.Close();
+            }
+        }
+
+        #endregion
+
         private static PopupWindowModel popupWindowModel;
         private PopupWindowModel()
         {
             propertiesGroups = new ObservableCollection<PropertiesGroup>();
             InitHierarchicalItems();
             InitConfigurations();
+
+            JoinableTaskContext mainContext = new JoinableTaskContext();
+            JoinableTaskFactory jtFactory = new JoinableTaskFactory(mainContext);
+
+            ConfirmCommand = new DelegateCommand(ConfirmCommandExecuteAsync, CanExecute, jtFactory);
+            CloseCommand = new DelegateCommand(CloseCommandExecuteAsync, CanExecute, jtFactory);
         }
 
         public static PopupWindowModel Instance()
@@ -235,7 +281,7 @@ namespace Updater.Popup
 
         #region [ init page option variables ] 
 
-        private void InitConfigurations()
+        public void InitConfigurations()
         {
             isAutoUpdateOn = ConfigurationManager.AppSettings["isAutoUpdateEnabled"];
             ipAddress = ConfigurationManager.AppSettings["ipAddress"];

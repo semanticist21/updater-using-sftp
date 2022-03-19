@@ -10,6 +10,7 @@
         mc:Ignorable="d"
         x:Name="popupWindow"
         ResizeMode="CanMinimize"
+        ShowCloseButton="False"
         Title="Options" Height="350" Width="550">
     <Grid>
         <Grid.RowDefinitions>
@@ -47,8 +48,8 @@
 
         <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button Content="OK" Width="65" Height="35" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20 0 5 10"/>
-                <Button Content="Cancel"  Width="65" Height="35" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5 0 20 10"/>
+                <Button Content="Ok" Width="65" Height="35" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20 0 5 10" Command="{Binding ConfirmCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type mah:MetroWindow},Mode=FindAncestor}}"/>
+                <Button Content="Cancel"  Width="65" Height="35" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5 0 20 10" Command="{Binding CloseCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type mah:MetroWindow},Mode=FindAncestor}}"/>
             </StackPanel>
         </Grid>
     </Grid>

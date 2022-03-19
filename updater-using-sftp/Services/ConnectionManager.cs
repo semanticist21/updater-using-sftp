@@ -121,6 +121,16 @@ namespace Updater.services
             }
         }
         /// <summary>
+        /// Disconnect if it is connected.
+        /// </summary>
+        public void DisconnectManager()
+        {
+            if(sftpClient != null && sftpClient.IsConnected)
+            {
+                sftpClient.Disconnect();
+            }
+        }
+        /// <summary>
         /// Returns true if there is a file named exists in the directory
         /// </summary>
         /// <param name="directory"></param>

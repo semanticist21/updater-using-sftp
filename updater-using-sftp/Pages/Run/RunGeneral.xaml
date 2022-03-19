@@ -27,7 +27,7 @@
                         <LineBreak/>
                         <Run Text="Directories should be in local directory."/>
                         <LineBreak/>
-                        <Run Text="Example :: ..../Main.exe;.../Main2.exe"/>
+                        <Run Text="Example :: ....\Main.exe;...\Main2.exe;..."/>
                     </TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
