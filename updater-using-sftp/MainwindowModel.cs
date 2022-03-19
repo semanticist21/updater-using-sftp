@@ -277,7 +277,7 @@ namespace Updater.services
             }
             catch(ArgumentException e)
             {
-                await mainWindowInstance.ShowMessageConfirmAsync("Error", "Please select the project to start");
+                await mainWindowInstance.ShowMessageConfirmAsync("Error", "Please select the project to start.");
             }
 
         }
@@ -489,7 +489,7 @@ namespace Updater.services
         {
             if (IsParsed)
             {
-                if (resultIntTwo <= fileListsCount)
+                if (resultIntTwo <= fileListsCount - 1)
                 {
                     SelectedFileModelIndex = resultIntTwo;
                 }
