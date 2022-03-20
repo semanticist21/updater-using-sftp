@@ -18,7 +18,7 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <iconPacks:PackIconMaterialLight Margin="10 12 0 0" Kind="Information"/>
+                    <iconPacks:PackIconMaterialLight Margin="10 14 0 0" Kind="Information"/>
                     <TextBlock Margin="10 10 15 5" Width="300" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
                         <Run Text="Put folder names to exclude."/>
                         <LineBreak/>
@@ -40,7 +40,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Vertical">
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <iconPacks:PackIconMaterialLight Margin="10 12 0 0" Kind="Information"/>
+                        <iconPacks:PackIconMaterialLight Margin="10 14 0 0" Kind="Information"/>
                         <TextBlock Margin="10 10 15 5" Width="300" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
                         <Run Text="It works in the same way."/>
                         <LineBreak/>

@@ -21,7 +21,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
-                <iconPacks:PackIconMaterialLight Margin="15 13 0 0" Kind="Information"/>
+                <iconPacks:PackIconMaterialLight Margin="15 14 0 0" Kind="Information"/>
                 <TextBlock Margin="10 10 15 5" Width="220" Text="Run auto command on run. It connects server and updates files automatically." HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap"/>
             </StackPanel>
             <StackPanel Grid.Row="1" Orientation="Vertical">

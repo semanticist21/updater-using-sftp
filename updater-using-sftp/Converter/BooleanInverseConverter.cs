@@ -9,7 +9,7 @@ using System.Windows.Data;
 
 namespace Updater.Converter
 {
-    internal class BoolenInverseConverter : IValueConverter
+    internal class BooleanInverseConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

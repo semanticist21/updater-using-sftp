@@ -32,16 +32,18 @@
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
     <Window.Resources>
-        <converter:BoolenInverseConverter x:Key="BoolenInverseConverter"/>
-
+        <converter:BooleanInverseConverter x:Key="BooleanInverseConverter"/>
+        <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Window.Resources>
     <Grid Grid.Column="1" Style="{StaticResource BackgroundGridStyle}" SnapsToDevicePixels="True" Background="{DynamicResource MahApps.Brushes.Accent4}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.8*"/>
             <ColumnDefinition Width="0.2*"/>
         </Grid.ColumnDefinitions>
+        <Canvas Background="DarkGray" Margin="10,57,10,0" Height="145" VerticalAlignment="Top" Visibility="{Binding IsProcessOn, Converter={StaticResource BooleanToVisibilityConverter}}" Opacity="0.5" Panel.ZIndex="1"/>
+        <mah:ProgressRing IsActive="{Binding IsProcessOn}" Height="60" Margin="0 0 0 40" IsLarge="True" />
         <StackPanel Grid.Column="0" Style="{StaticResource MainStackPanelStyle}">
-            <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" Height="25" Margin="10 0 0 15 " BorderThickness="0" Opacity="0.7" Background="{DynamicResource MahApps.Brushes.ComboBox.PopupBorder}"/>
+            <mah:MetroProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" Height="25" Margin="10 0 0 15 " BorderThickness="0" Opacity="0.7" Background="{DynamicResource MahApps.Brushes.ComboBox.PopupBorder}"/>
             <DataGrid x:Name="mainDataGrid" Height="145" AutoGenerateColumns="false" ItemsSource="{Binding FinalList, Mode=TwoWay}" Margin="9 0 0 5" FontSize="9" HorizontalScrollBarVisibility="Auto" CanUserResizeColumns="True" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeRows="False" CanUserAddRows="False" CanUserDeleteRows="False" BorderBrush="{DynamicResource MahApps.Brushes.Button.Border.MouseOver}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Accent4}" Opacity="0.8">
                 <DataGrid.Columns>
                     <DataGridCheckBoxColumn x:Name="checkBoxColumn" Width="0.055*" Binding="{Binding IsUpdateTarget, Mode=TwoWay}" IsReadOnly="False">
@@ -85,7 +87,7 @@
                 <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Log}"/>
             </ScrollViewer>
         </StackPanel>
-        <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}" Background="{DynamicResource MahApps.Brushes.Menu.Background}" BorderBrush="Transparent">
+        <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}" Background="{DynamicResource MahApps.Brushes.ThemeBackground}" BorderBrush="Transparent">
             <StackPanel VerticalAlignment="Top" Margin="0 10 0 0">
                 <ComboBox Margin="7 3 7 3" ItemsSource="{Binding RunFileModels}" DisplayMemberPath="RunFileName" SelectedIndex="{Binding SelectedFileModelIndex, Mode=TwoWay}"/>
                 <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Auto" Command="{Binding AutoCommand}"/>

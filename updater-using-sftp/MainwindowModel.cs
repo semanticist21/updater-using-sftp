@@ -275,13 +275,17 @@ namespace Updater.services
                 }
                 else Logger(ErrorLevel.Warning, "Warning with run file info. It is canceled.");
             }
-            catch(ArgumentException e)
+            catch (ArgumentException e)
             {
                 await mainWindowInstance.ShowMessageConfirmAsync("Error", "Please select the project to start.");
             }
+            finally
+            {
+                IsProcessOn = false;
+            }
 
         }
-        private void OptionsCommandExecute(object param)
+        private async void OptionsCommandExecute(object param)
         {
             IsProcessOn = true;
 
@@ -317,7 +321,7 @@ namespace Updater.services
                 getCustomInfoFromSetting();
                 if (manager != null && manager.IsConnected) ConnectionStatus = "Reconnect";
                 isSettingRefreshedFromLastConnection = true;
-                Logger(ErrorLevel.Info, "Changes were saved.");
+                await mainWindowInstance.ShowMessageConfirmAsync("Info", "Changes were saved.");
             }
 
 
@@ -442,24 +446,26 @@ namespace Updater.services
         {
             if (ConfigurationManager.AppSettings != null)
             {
-                bool parseBool = bool.TryParse(ConfigurationManager.AppSettings["isAutoUpdateEnabled"], out bool boolResult);
+                var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).AppSettings;
+
+                bool parseBool = bool.TryParse(config.Settings["isAutoUpdateEnabled"].Value, out bool boolResult);
                 isAutoUpdateEnabled = parseBool ? boolResult : false;
 
-                info.Address = ConfigurationManager.AppSettings["ipAddress"] ?? string.Empty;
-                bool IsParsed = int.TryParse(ConfigurationManager.AppSettings["port"], out int resultIntOne);
+                info.Address = config.Settings["ipAddress"].Value ?? string.Empty;
+                bool IsParsed = int.TryParse(config.Settings["port"].Value, out int resultIntOne);
                 info.Port = IsParsed ? resultIntOne : 22;
-                info.User = ConfigurationManager.AppSettings["user"] ?? string.Empty;
-                info.Password = ConfigurationManager.AppSettings["password"] ?? string.Empty;
-                info.SftpFileBaseDirectory = ConfigurationManager.AppSettings["sftpBaseDirectory"];
+                info.User = config.Settings["user"].Value ?? string.Empty;
+                info.Password = config.Settings["password"].Value ?? string.Empty;
+                info.SftpFileBaseDirectory = config.Settings["sftpBaseDirectory"].Value;
                 if (info.SftpFileBaseDirectory == string.Empty) info.SftpFileBaseDirectory = "/";
                 info.LocalFileDirectory = GetCurrentFileDirectory();
 
-                folderNamesNotToUpdate = ConfigurationManager.AppSettings["folderNamesNotToUpdate"].Split(";");
-                filesNotToUpdate = ConfigurationManager.AppSettings["filesNotToUpdate"].Split(";");
-                targetFolderNames = ConfigurationManager.AppSettings["targetFolderNames"].Split(";");
+                folderNamesNotToUpdate = config.Settings["folderNamesNotToUpdate"].Value.Split(";");
+                filesNotToUpdate = config.Settings["filesNotToUpdate"].Value.Split(";");
+                targetFolderNames = config.Settings["targetFolderNames"].Value.Split(";");
 
-                List<string> FileLists = ConfigurationManager.AppSettings["executeFileDirectory"].Split(';').ToList();
-                IsParsed = int.TryParse(ConfigurationManager.AppSettings["selectedFileModelIndex"], out int resultIntTwo);
+                List<string> FileLists = config.Settings["executeFileDirectory"].Value.Split(';').ToList();
+                IsParsed = int.TryParse(config.Settings["selectedFileModelIndex"].Value, out int resultIntTwo);
 
                 runFileModels.Clear();
                 FileLists.ForEach(x => AddRunFileModels(x));
@@ -470,6 +476,35 @@ namespace Updater.services
 
                 if (info.User.Equals(string.Empty)) Logger(ErrorLevel.Error, "There is no user info!!");
                 if (info.Password.Equals(string.Empty)) Logger(ErrorLevel.Error, "There is no password info!!");
+
+                //bool parseBool = bool.TryParse(ConfigurationManager.AppSettings["isAutoUpdateEnabled"], out bool boolResult);
+                //isAutoUpdateEnabled = parseBool ? boolResult : false;
+
+                //info.Address = ConfigurationManager.AppSettings["ipAddress"] ?? string.Empty;
+                //bool IsParsed = int.TryParse(ConfigurationManager.AppSettings["port"], out int resultIntOne);
+                //info.Port = IsParsed ? resultIntOne : 22;
+                //info.User = ConfigurationManager.AppSettings["user"] ?? string.Empty;
+                //info.Password = ConfigurationManager.AppSettings["password"] ?? string.Empty;
+                //info.SftpFileBaseDirectory = ConfigurationManager.AppSettings["sftpBaseDirectory"];
+                //if (info.SftpFileBaseDirectory == string.Empty) info.SftpFileBaseDirectory = "/";
+                //info.LocalFileDirectory = GetCurrentFileDirectory();
+
+                //folderNamesNotToUpdate = ConfigurationManager.AppSettings["folderNamesNotToUpdate"].Split(";");
+                //filesNotToUpdate = ConfigurationManager.AppSettings["filesNotToUpdate"].Split(";");
+                //targetFolderNames = ConfigurationManager.AppSettings["targetFolderNames"].Split(";");
+
+                //List<string> FileLists = ConfigurationManager.AppSettings["executeFileDirectory"].Split(';').ToList();
+                //IsParsed = int.TryParse(ConfigurationManager.AppSettings["selectedFileModelIndex"], out int resultIntTwo);
+
+                //runFileModels.Clear();
+                //FileLists.ForEach(x => AddRunFileModels(x));
+                //SetCheckBoxInitialIndex(resultIntTwo, runFileModels.Count(), IsParsed);
+
+                //Logger(ErrorLevel.Info, "Succesfully fetched app configuration info.");
+                //Logger(ErrorLevel.Info, $"Target base directory :: {info.LocalFileDirectory}");
+
+                //if (info.User.Equals(string.Empty)) Logger(ErrorLevel.Error, "There is no user info!!");
+                //if (info.Password.Equals(string.Empty)) Logger(ErrorLevel.Error, "There is no password info!!");
             }
             else
             {
@@ -551,7 +586,7 @@ namespace Updater.services
             }
             finally
             {
-                if(!isFromAutoCommand)IsProcessOn = false;
+                if (!isFromAutoCommand) IsProcessOn = false;
             }
         }
         private async Task StartConnection(CustomConnectionInfo info)

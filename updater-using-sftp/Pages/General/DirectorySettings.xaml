@@ -19,7 +19,7 @@
 
             <StackPanel Grid.Row="0">
                 <StackPanel Orientation="Horizontal">
-                    <iconPacks:PackIconMaterialLight Margin="15 14 0 0" Kind="Information"/>
+                    <iconPacks:PackIconMaterialLight Margin="15 13 0 0" Kind="Information"/>
                     <TextBlock Margin="10 10 15 5" Width="220" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
                         <Run Text="Put base serach directory for server."/>
                         <LineBreak/>
@@ -36,7 +36,7 @@
                     </mah:MetroHeader>
                 </StackPanel>
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <iconPacks:PackIconMaterialLight Margin="15 5 0 0" Kind="Information"/>
+                    <iconPacks:PackIconMaterialLight Margin="15 4 0 0" Kind="Information"/>
                     <TextBlock Margin="10 0 15 5" Width="280" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap">
                         <Run Text="Put folder names you want to update.  "/>
                         <LineBreak/>
