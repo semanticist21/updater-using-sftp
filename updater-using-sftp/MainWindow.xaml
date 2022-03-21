@@ -1,49 +1,28 @@
-﻿<mah:MetroWindow x:Class="Updater.MainWindow"
-        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Updater"
-        xmlns:converter="clr-namespace:Updater.Converter"
-        mc:Ignorable="d"
-        ResizeMode="CanMinimize"
-        ShowMinButton="True"
-        WindowStyle="SingleBorderWindow"
-        Topmost="True"
-        Title="Updater for sftp server" Height="350" Width="600"
-        GlowBrush="{DynamicResource MahApps.Brushes.Accent}"
-        ShowTitleBar="True"
-        Closed="Window_Closed"
-        >
+﻿<mah:MetroWindow x:Class="Updater.MainWindow" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local="clr-namespace:Updater" xmlns:converter="clr-namespace:Updater.Converter" mc:Ignorable="d" ResizeMode="CanMinimize" ShowMinButton="True" WindowStyle="SingleBorderWindow" Topmost="True" Title="Updater for sftp server" Height="350" Width="600" GlowBrush="{DynamicResource MahApps.Brushes.Accent}" ShowTitleBar="True" Closed="Window_Closed">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
             <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5 0 5 0">
-                <iconPacks:PackIconModern Width="22"
-                                  Height="22"
-                                  Kind="ArrowUpDown">
+                <iconPacks:PackIconModern Width="22" Height="22" Kind="ArrowUpDown">
                     <iconPacks:PackIconModern.LayoutTransform>
-                        <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                        <ScaleTransform ScaleX="0.7" ScaleY="0.7" />
                     </iconPacks:PackIconModern.LayoutTransform>
                 </iconPacks:PackIconModern>
             </Grid>
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
     <Window.Resources>
-        <converter:BooleanInverseConverter x:Key="BooleanInverseConverter"/>
-        <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converter:BooleanInverseConverter x:Key="BooleanInverseConverter" />
+        <converter:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
     <Grid Grid.Column="1" Style="{StaticResource BackgroundGridStyle}" SnapsToDevicePixels="True" Background="{DynamicResource MahApps.Brushes.Accent4}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.8*"/>
-            <ColumnDefinition Width="0.2*"/>
+            <ColumnDefinition Width="0.8*" />
+            <ColumnDefinition Width="0.2*" />
         </Grid.ColumnDefinitions>
-        <Canvas Background="DarkGray" Margin="10,57,10,0" Height="145" VerticalAlignment="Top" Visibility="{Binding IsProcessOn, Converter={StaticResource BooleanToVisibilityConverter}}" Opacity="0.5" Panel.ZIndex="1"/>
+        <Canvas Background="DarkGray" Margin="10,57,10,0" Height="145" VerticalAlignment="Top" Visibility="{Binding IsProcessOn, Converter={StaticResource BooleanToVisibilityConverter}}" Opacity="0.5" Panel.ZIndex="1" />
         <mah:ProgressRing IsActive="{Binding IsProcessOn}" Height="60" Margin="0 0 0 40" IsLarge="True" />
         <StackPanel Grid.Column="0" Style="{StaticResource MainStackPanelStyle}">
-            <mah:MetroProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" Height="25" Margin="10 0 0 15 " BorderThickness="0" Opacity="0.7" Background="{DynamicResource MahApps.Brushes.ComboBox.PopupBorder}"/>
+            <mah:MetroProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMaxValue}" Height="25" Margin="10 0 0 15 " BorderThickness="0" Opacity="0.7" Background="{DynamicResource MahApps.Brushes.ComboBox.PopupBorder}" />
             <DataGrid x:Name="mainDataGrid" Height="145" AutoGenerateColumns="false" ItemsSource="{Binding FinalList, Mode=TwoWay}" Margin="9 0 0 5" FontSize="9" HorizontalScrollBarVisibility="Auto" CanUserResizeColumns="True" CanUserReorderColumns="True" CanUserSortColumns="True" CanUserResizeRows="False" CanUserAddRows="False" CanUserDeleteRows="False" BorderBrush="{DynamicResource MahApps.Brushes.Button.Border.MouseOver}" BorderThickness="1" Background="{DynamicResource MahApps.Brushes.Accent4}" Opacity="0.8">
                 <DataGrid.Columns>
                     <DataGridCheckBoxColumn x:Name="checkBoxColumn" Width="0.055*" Binding="{Binding IsUpdateTarget, Mode=TwoWay}" IsReadOnly="False">
@@ -54,7 +33,7 @@
                                         <DataTemplate>
                                             <CheckBox x:Name="xCheckedAll" Click="xCheckedAll_Click" IsChecked="True" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0">
                                                 <CheckBox.LayoutTransform>
-                                                    <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                                    <ScaleTransform ScaleX="0.7" ScaleY="0.7" />
                                                 </CheckBox.LayoutTransform>
                                             </CheckBox>
                                         </DataTemplate>
@@ -67,9 +46,9 @@
                                 <Setter Property="ContentTemplate">
                                     <Setter.Value>
                                         <DataTemplate>
-                                            <CheckBox IsChecked="{Binding IsUpdateTarget, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Command="{Binding DataContext.CheckCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGridCell}, Mode=FindAncestor}}" Margin="4 0 0 0">
+                                            <CheckBox IsChecked="{Binding IsUpdateTarget}" HorizontalAlignment="Center" VerticalAlignment="Center" Click="CheckBox_Click" Margin="4 0 0 0">
                                                 <CheckBox.LayoutTransform>
-                                                    <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                                                    <ScaleTransform ScaleX="0.7" ScaleY="0.7" />
                                                 </CheckBox.LayoutTransform>
                                             </CheckBox>
                                         </DataTemplate>
@@ -78,25 +57,25 @@
                             </Style>
                         </DataGridCheckBoxColumn.CellStyle>
                     </DataGridCheckBoxColumn>
-                    <DataGridTextColumn Width="0.25*" Header="File Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                    <DataGridTextColumn Width="0.5*" Header="Directory" Binding="{Binding Directory}" IsReadOnly="True"/>
-                    <DataGridTextColumn Width="0.27*" Header="Last Written Time" Binding="{Binding LastWrittenTime}" IsReadOnly="True"/>
+                    <DataGridTextColumn Width="0.25*" Header="File Name" Binding="{Binding Name}" IsReadOnly="True" />
+                    <DataGridTextColumn Width="0.5*" Header="Directory" Binding="{Binding Directory}" IsReadOnly="True" />
+                    <DataGridTextColumn Width="0.27*" Header="Last Written Time" Binding="{Binding LastWrittenTime}" IsReadOnly="True" />
                 </DataGrid.Columns>
             </DataGrid>
             <ScrollViewer Margin="10 0 0 0" Height="95" SizeChanged="ScrollViewer_SizeChanged" BorderBrush="{DynamicResource MahApps.Brushes.Button.Border.MouseOver}" Background="{DynamicResource MahApps.Brushes.Accent4}" Opacity="0.8">
-                <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Log}"/>
+                <TextBox Style="{StaticResource TextBoxStyle}" Text="{Binding Log}" />
             </ScrollViewer>
         </StackPanel>
         <Border Grid.Column="1" Style="{StaticResource ButtonBoxBorderStyle}" Background="{DynamicResource MahApps.Brushes.ThemeBackground}" BorderBrush="Transparent">
             <StackPanel VerticalAlignment="Top" Margin="0 10 0 0">
-                <ComboBox Margin="7 3 7 3" ItemsSource="{Binding RunFileModels}" DisplayMemberPath="RunFileName" SelectedIndex="{Binding SelectedFileModelIndex, Mode=TwoWay}"/>
-                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Auto" Command="{Binding AutoCommand}"/>
-                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="{Binding ConnectionStatus, FallbackValue=Connect}" Command="{Binding ConnectCommand}"/>
-                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Update" Command="{Binding UpdateCommand}"/>
-                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Run Project" Command="{Binding RunCommand}"/>
-                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Options" Command="{Binding OptionsCommand}"/>
-                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Open local Folder" FontSize="9" Command="{Binding OpenLocalFolderCommand}"/>
-                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Exit" Command="{Binding ExitCommand}"/>
+                <ComboBox Margin="7 3 7 3" ItemsSource="{Binding RunFileModels}" DisplayMemberPath="RunFileName" SelectedIndex="{Binding SelectedFileModelIndex, Mode=TwoWay}" />
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Auto" Command="{Binding AutoCommand}" />
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="{Binding ConnectionStatus, FallbackValue=Connect}" Command="{Binding ConnectCommand}" />
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Update" Command="{Binding UpdateCommand}" />
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Run Project" Command="{Binding RunCommand}" />
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Options" Command="{Binding OptionsCommand}" />
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Open local Folder" FontSize="9" Command="{Binding OpenLocalFolderCommand}" />
+                <Button MinHeight="30" Margin="4" FontWeight="SemiBold" Content="Exit" Command="{Binding ExitCommand}" />
             </StackPanel>
         </Border>
     </Grid>

@@ -66,5 +66,16 @@ namespace Updater
         {
             await this.ShowMessageAsync(title, message, MessageDialogStyle.Affirmative);
         }
+
+        private void CheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if(sender is CheckBox checkbox)
+            {
+                if(checkbox.DataContext is FileInfoData file)
+                {
+                    file.IsUpdateTarget = !file.IsUpdateTarget;
+                }
+            }
+        }
     }
 }
