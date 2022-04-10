@@ -39,7 +39,7 @@ For specific usage, see below __Usage__ Section.
 
 First, download the code and then build the project using Visual Studio.
 
-After build, Put all updater files into one folder (Debug Or Release). 
+After build, put all updater files into one folder (Debug Or Release). 
 Then, position it within the same parent directory where there are project folders you want to update.
 For example, if you have 2 project folders to update, you will have 3 folders in the same directory.
 
