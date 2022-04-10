@@ -18,7 +18,6 @@ It is not recommend to use where security is required.
 This program was developed via WPF, .Net 6.0 Framwork, sftp client library.
 
 + This project was built based on .Net 6.0, so .Net 6.0 or higher version is required for use.
-+ You need Visual Studio to build the project.
 + Supported OS : Windows
 
 ### Screen Description
@@ -40,6 +39,7 @@ For specific usage, see below __Usage__ Section.
 First, download the code and then build the project using Visual Studio.
 
 After build, put all updater files into one folder (Debug Or Release). 
+Or download at github release
 Then, position it within the same parent directory where there are project folders you want to update.
 For example, if you have 2 project folders to update, you will have 3 folders in the same directory.
 
@@ -85,7 +85,7 @@ you have the following as..
 2. C:/some folder/_project2_
 3. C:/some folder/_updater_
 
-_the base local directory_ is automatically set on "C:/some folder/".
+_the base local directory_ is automatically set as "C:/some folder/".
 
 [ sftp server ]
 In the server, you have the following as..
