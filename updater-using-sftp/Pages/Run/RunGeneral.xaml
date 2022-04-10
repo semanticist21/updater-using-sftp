@@ -34,7 +34,7 @@
                     <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="12"
                  mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
                                  Margin="15 0 0 0"
-                                 Header="≫ executeFileDirectory :"
+                                 Header="≫ File To Execute Directory :"
                                  >
                         <TextBox Margin="0 0 15 5"  Width="290" Height="20" Text="{Binding ExecuteFileDir, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
                     </mah:MetroHeader>
@@ -51,7 +51,7 @@
                     <mah:MetroHeader mah:HeaderedControlHelper.HeaderFontWeight="Heavy" mah:HeaderedControlHelper.HeaderFontSize="12"
                  mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
                                  Margin="15 0 0 0"
-                                 Header="≫ selectedFileModelIndex :"
+                                 Header="≫ Selected File Index :"
                                  >
                         <TextBox Margin="0 0 15 5"  Width="20" Height="20" Text="{Binding SelectedFileModeIndex,Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center" TextAlignment="Left"/>
                     </mah:MetroHeader>
