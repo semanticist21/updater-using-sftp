@@ -10,6 +10,7 @@ It is not recommend to use where security is required.
 + You can set file names not to update or exclude from search.
 + It is open-source, free to edit.
 
+---
 ## Getting Started
 
 ### Prerequisites
@@ -37,27 +38,31 @@ For specific usage, see below __Usage__ Section.
 
 First, download code and then build the project.
 
-
-
 After build, Put all updater files into one folder (Debug Or Release). 
 Then, position it within the same parent directory where there is project folders you want to update.
 for example, if you have 2 project folder to update, you will have 3 folder in the same directory.
-1. .../some directory/__Your Project1__
-2. .../some directory/__Your Project2__
-3. .../some directory/__Updater Project Folder__
 
-Before you do anything in the program, start form setting options By clicking _Options_ button.
-Any information written here will be all saved to app.config.
+1. .../some directory/_Your Project1_
+2. .../some directory/_Your Project2_
+3. .../some directory/_Updater Project Folder_
+
+Also, you do the same thing for sftp server. 
+Updater folder is not required. Parent directory can be different from the local parent of folders(here, _some directory_).
+
+1. .../some server directory/_Your Project1_
+2. .../some server directory/_Your Project2_
+
+After that, let's start setting options By clicking _Options_ in the menu.
+Any information written here will be all saved to app.config. So you can directly edit the config file.
 If enough information is not provied for the program, It might cause errors.
 
 ![kakao1](https://user-images.githubusercontent.com/92710478/162604573-f848165d-754a-47a0-a6b8-c3ae364c375a.png)
 
-#### General Configs
+### General Configs
 
 It is essential to fill all options here. 
 
-#### Connection
-
+#### 1. Connection
 Set connection info here. This project only uses __SFTP protocol__
 
 + Ip Address
@@ -65,14 +70,71 @@ Set connection info here. This project only uses __SFTP protocol__
 + User
 + Password
 
-#### Directories
-
+#### 2. Directories
 Set server directory, and folder names for search. 
 
 + SFTP server base directory
-+ target folder naes
++ target folder names
 
-the logic is simple. let's say the update folder
+the logic is simple. let's continue with the case above, 2 project folders to update.
+you have the following as.. 
+
+[ Window local PC ] 
+1. C:/some folder/_project1_
+2. C:/some folder/_project2_
+3. C:/some folder/_updater_
+
+_the base local directory_ is automatically set on "C:/some folder/".
+
+[ sftp server ]
+In the server, you have the following as..
+
+1. /some server folder/_project1_
+2. /some server folder/_project2_
+
+Then, _sftp server base directory_ should be "/some server folder/".
+_Target Folder Names_ should be "project1;project2"
+
+#### 3. Customs
+It is recommed to be disabled, if you have not set any configs yet.
+before enabling it, you should run _Auto_ command in the menu by yourself.
+
++ Auto updtae on run
+
+### Excludes
+Options for exclude in the update process.
+
++ Folder Names Not To Update
++ File Names Not To Update
+
+It excludes files, folders when making update list.
+for example, you set
+1. _Folder Names To Update_ : "debug;obj"
+2. _File Names Not To Update_ : "project_1.config;app.config"
+
+The Process will ignore __all the names__ in the child tree of the target folders.
+
+These will be all ignored.
+1. /some server folder/_project1_/.../__obj__
+2. /some server folder/_project1_/__debug__
+3. /some server folder/_project1_/.../__project_1.config__
+4. /some server folder/_project1_/__app.config__
+
+### Run Configs
+Set executable files to run when clicked _Auto_ or _Run project_ in the menus.
+Put only .exe file in the list.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
