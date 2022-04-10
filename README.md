@@ -18,6 +18,7 @@ It is not recommend to use where security is required.
 This program was developed via WPF, .Net 6.0 Framwork, sftp client library.
 
 + This project was built based on .Net 6.0, so .Net 6.0 or higher version is required for use.
++ You need Visual Studio to build the project.
 + Supported OS : Windows
 
 ### Screen Description
@@ -36,24 +37,24 @@ For specific usage, see below __Usage__ Section.
 
 ### Usage
 
-First, download code and then build the project.
+First, download the code and then build the project using Visual Studio.
 
 After build, Put all updater files into one folder (Debug Or Release). 
-Then, position it within the same parent directory where there is project folders you want to update.
-for example, if you have 2 project folder to update, you will have 3 folder in the same directory.
+Then, position it within the same parent directory where there are project folders you want to update.
+For example, if you have 2 project folders to update, you will have 3 folders in the same directory.
 
 1. .../some directory/_Your Project1_
 2. .../some directory/_Your Project2_
 3. .../some directory/_Updater Project Folder_
 
 Also, you do the same thing for sftp server. 
-Updater folder is not required. Parent directory can be different from the local parent of folders(here, _some directory_).
+Updater folder is not required. Parent directory can be different from the local parent of folders(like, _some directory_ and _some server directory_).
 
 1. .../some server directory/_Your Project1_
 2. .../some server directory/_Your Project2_
 
 After that, let's start setting options By clicking _Options_ in the menu.
-Any information written here will be all saved to app.config. So you can directly edit the config file.
+Any information written here will be saved to app.config of the updater folder. So you can directly edit the config file.
 If enough information is not provied for the program, It might cause errors.
 
 ![kakao1](https://user-images.githubusercontent.com/92710478/162604573-f848165d-754a-47a0-a6b8-c3ae364c375a.png)
