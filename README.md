@@ -99,7 +99,7 @@ _Target Folder Names_ should be "project1;project2"
 It is recommed to be disabled, if you have not set any configs yet.
 before enabling it, you should run _Auto_ command in the menu by yourself.
 
-+ Auto updtae on run
++ Auto Updtae On Run
 
 ### Excludes
 Options for exclude in the update process.
@@ -115,6 +115,7 @@ for example, you set
 The Process will ignore __all the names__ in the child tree of the target folders.
 
 These will be all ignored.
+
 1. /some server folder/_project1_/.../__obj__
 2. /some server folder/_project1_/__debug__
 3. /some server folder/_project1_/.../__project_1.config__
@@ -124,8 +125,8 @@ These will be all ignored.
 Set executable files to run when clicked _Auto_ or _Run project_ in the menus.
 Put only .exe file in the list.
 
-+ Execute File Directory
-+ Selected File Model Index
++ File To Execute Directory
++ Selected File Index
 
 
 
