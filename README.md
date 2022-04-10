@@ -124,8 +124,8 @@ These will be all ignored.
 Set executable files to run when clicked _Auto_ or _Run project_ in the menus.
 Put only .exe file in the list.
 
-
-
++ Execute File Directory
++ Selected File Model Index
 
 
 
