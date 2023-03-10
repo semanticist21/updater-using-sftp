@@ -445,7 +445,7 @@ namespace Updater.services
 
             getCustomInfoFromSetting();
 
-            mainThreadContext = new JoinableTaskContext();
+            mainThreadContext = new();
             jtFactory = new JoinableTaskFactory(mainThreadContext);
 
             AutoCommand = new DelegateCommand(AutoCommandExecute, CanExecute, jtFactory);
