@@ -24,7 +24,7 @@ This program was developed via WPF, .Net 6.0 Framwork, sftp client library.
 
 ![kakao2](https://user-images.githubusercontent.com/92710478/162603839-c111c55d-633e-4706-bc52-7889fc8204d9.png)
 
-For specific usage, see below __Usage__ Section.
+For a specific usage, see below __Usage__ Section.
 
 + Auto : it tries to connect sftp server base on info in app.config, and fetch files info from server. If it has any newer file, it begins updating files into local directory. After completion, it tries to run executable file in the combo box.
 + Connect : it tries to connect sftp server base on the info given, and fetch newer files info and list them on the list box.
