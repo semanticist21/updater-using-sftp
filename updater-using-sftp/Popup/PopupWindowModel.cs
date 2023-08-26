@@ -231,7 +231,7 @@ namespace Updater.Popup
             InitHierarchicalItems();
             InitConfigurations();
 
-            JoinableTaskContext mainContext = new JoinableTaskContext();
+            JoinableTaskContext mainContext = new();
             JoinableTaskFactory jtFactory = new JoinableTaskFactory(mainContext);
 
             ConfirmCommand = new DelegateCommand(ConfirmCommandExecuteAsync, CanExecute, jtFactory);

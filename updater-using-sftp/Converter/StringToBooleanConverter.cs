@@ -13,19 +13,15 @@ namespace Updater.Converter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string stringValue)
+            if (value is not string stringValue) return DependencyProperty.UnsetValue;
+            stringValue = stringValue.ToLower();
+
+            return stringValue switch
             {
-                if (stringValue.Equals("true") || stringValue.Equals("True"))
-                {
-                    return true;
-                }
-                else if (stringValue.Equals("false") || stringValue.Equals("False"))
-                {
-                    return false;
-                }
-                else return DependencyProperty.UnsetValue;
-            }
-            else return DependencyProperty.UnsetValue;
+                "true" => true,
+                "false" => false,
+                _ => DependencyProperty.UnsetValue,
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
