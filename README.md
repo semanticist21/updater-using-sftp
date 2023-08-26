@@ -2,7 +2,7 @@
 
 ## About the project
 
-This project is very simple project for updating files from sftp server.
+This project is for updating files from sftp server.
 It makes update version management easy with a few settings.
 It is not recommend to use where security is required.
 
@@ -15,7 +15,7 @@ It is not recommend to use where security is required.
 
 ### Prerequisites
 
-This program was developed via WPF, .Net 6.0 Framwork, sftp client library.
+This program was developed in WPF, .Net 6.0 Framwork, sftp client library.
 
 + This project was built based on .Net 6.0, so .Net 6.0 or higher version is required for use.
 + Supported OS : Windows
@@ -24,7 +24,7 @@ This program was developed via WPF, .Net 6.0 Framwork, sftp client library.
 
 ![kakao2](https://user-images.githubusercontent.com/92710478/162603839-c111c55d-633e-4706-bc52-7889fc8204d9.png)
 
-For specific usage, see below __Usage__ Section.
+For a specific usage, see below __Usage__ Section.
 
 + Auto : it tries to connect sftp server base on info in app.config, and fetch files info from server. If it has any newer file, it begins updating files into local directory. After completion, it tries to run executable file in the combo box.
 + Connect : it tries to connect sftp server base on the info given, and fetch newer files info and list them on the list box.
@@ -103,7 +103,7 @@ before enabling it, you should run _Auto_ command in the menu by yourself.
 + Auto Updtae On Run
 
 ### Excludes
-Options for exclude in the update process.
+Options for excludes in the update process.
 
 + Folder Names Not To Update
 + File Names Not To Update
